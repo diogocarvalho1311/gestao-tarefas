@@ -26,7 +26,8 @@ input:focus, select:focus, textarea:focus { outline: 2px solid #b9562d70; border
 h1 { font-size: 32px; line-height: 1.2; font-weight: 500; letter-spacing: -.04em; }
 h2 { font-size: 17px; font-weight: 500; letter-spacing: -.025em; }
 h3 { font-weight: 500; }
-.sidebar { width: 248px; background: #171717; border-color: #2c2c2c; padding: 28px 18px 18px; }
+.sidebar { width: 248px; background: #171717; border-color: #2c2c2c; padding: 28px 18px 18px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #44382f transparent; }
+.sidebar > * { flex-shrink: 0; }
 .brand { font-size: 27px; font-weight: 600; letter-spacing: -.045em; padding-bottom: 30px; gap: 10px; }
 .brand-mark { background: var(--accent-solid); color: #fff4eb; border-radius: 12px; padding: 8px; }
 .brand-mark svg { width: 24px; height: 24px; }
@@ -44,6 +45,10 @@ h3 { font-weight: 500; }
 .nav-link.selected { color: #f3aa7d; background: #2d241f; }
 .nav-link small { background: #ffffff12; color: inherit; border-radius: 8px; font-size: 10px; }
 .sidebar-section { border-color: #303030; margin-top: 23px; }
+.client-nav-icon { width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.client-nav-icon .group-dot { width: 8px; height: 8px; }
+.nav-link.client-shortcut.client-lucri.selected { color: #90c9a3; background: #223027; }
+.nav-link.client-shortcut.client-cwb.selected { color: #e792bb; background: #35242d; }
 .nav-link .small-dot { background: #d19a72; }
 .small-note { background: #22201e; border-color: #39332e; border-radius: 18px; padding: 15px 12px; margin-bottom: 18px; }
 .note-icon { color: var(--accent); }

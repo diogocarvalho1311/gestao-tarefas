@@ -79,6 +79,8 @@ Clique no título de uma coluna para ordenar; clique novamente para inverter. Te
 
 Os pontos têm cores fixas: **CWB Kids rosa**, **Lucri verde**, **Minhas tarefas amarelo** e **Meus projetos roxo**. As cores de prioridade continuam independentes dessas cores.
 
+Os atalhos **Lucri** e **CWB Kids** no menu abrem as tarefas de cada cliente com busca, filtros e ordenação. Ao criar uma tarefa nessa seção, o cliente já vem preenchido. Os números no menu indicam tarefas pendentes.
+
 ## Relatórios com tarefas vinculadas
 
 As seções de realizados e próximo planejamento começam por listas de tarefas selecionadas automaticamente. É possível marcar/desmarcar, pesquisar e adicionar outras tarefas concluídas ou pendentes do cliente/projeto escolhido. O botão **Puxar tarefas automaticamente** atualiza as seleções sem apagar os complementos livres nem os comentários.
