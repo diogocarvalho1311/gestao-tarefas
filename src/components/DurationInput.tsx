@@ -1,0 +1,8 @@
+import { useState } from 'react';
+interface Props {label:string;name?:string;value?:number;defaultHours?:number;onChange?:(hours:number)=>void;allowZero?:boolean;maxHours?:number}
+export default function DurationInput({label,name,value,defaultHours=1,onChange,allowZero=false,maxHours=24}:Props) {
+  const [local,setLocal]=useState(defaultHours),[unit,setUnit]=useState<'minutes'|'hours'>((value??defaultHours)<1?'minutes':'hours');
+  const canonical=value??local,visible=unit==='minutes'?Number((canonical*60).toFixed(6)):Number(canonical.toFixed(6));
+  const update=(hours:number)=>{setLocal(hours);onChange?.(hours);};
+  return <div className="duration-field"><label><span>{label}</span><div className="duration-controls"><input aria-label={label} type="number" value={Number.isFinite(visible)?visible:''} onChange={e=>update(unit==='minutes'?Number(e.target.value)/60:Number(e.target.value))} min={allowZero?0:unit==='minutes'?1:1/60} max={unit==='minutes'?maxHours*60:maxHours} step={unit==='minutes'?1:'any'} required/><select aria-label={`Unidade de ${label.toLocaleLowerCase()}`} value={unit} onChange={e=>setUnit(e.target.value as typeof unit)}><option value="minutes">Minutos</option><option value="hours">Horas</option></select></div></label>{name&&<input type="hidden" name={name} value={canonical}/>}<div className="duration-presets">{[15,30,60].map(m=><button type="button" key={m} aria-label={`Definir ${m} minutos em ${label.toLocaleLowerCase()}`} className={Math.abs(canonical-m/60)<.0001?'active':''} onClick={()=>{setUnit(m<60?'minutes':'hours');update(m/60);}}>{m===60?'1 hora':`${m} min`}</button>)}</div></div>;
+}
