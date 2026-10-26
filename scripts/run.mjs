@@ -9,7 +9,7 @@ const root=join(process.env.LOCALAPPDATA||process.env.XDG_DATA_HOME||join(proces
 const key=createHash('sha256').update(source).digest('hex').slice(0,12);
 const runtime=join(root,`runtime-${key}`);
 mkdirSync(runtime,{recursive:true});mkdirSync(join(root,`data-${key}`),{recursive:true});
-for(const name of ['package.json','package-lock.json','tsconfig.json','vite.config.ts','index.html','src','server','shared','tests']) {
+for(const name of ['package.json','package-lock.json','tsconfig.json','vite.config.ts','index.html','wrangler.jsonc','src','server','shared','tests','scripts','cloudflare','public']) {
   const from=join(source,name);if(existsSync(from)) cpSync(from,join(runtime,name),{recursive:true,force:true});
 }
 if(existsSync(join(source,'.env'))) cpSync(join(source,'.env'),join(runtime,'.env'));
@@ -19,7 +19,7 @@ const deps=JSON.parse(contents);const fingerprint=JSON.stringify([deps.dependenc
 const marker=join(runtime,'.installed');
 async function run(bin,args,extra={}) {
   return new Promise((done,reject)=>{
-    const child=spawn(bin,args,{cwd:runtime,stdio:'inherit',env:{...process.env,COMPASSO_DEFAULT_DB:join(root,`data-${key}`,'compasso.sqlite'),...extra},shell:false});
+    const child=spawn(bin,args,{cwd:runtime,stdio:'inherit',env:{...process.env,DCARVALHO_SOURCE_DIR:source,COMPASSO_DEFAULT_DB:join(root,`data-${key}`,'compasso.sqlite'),...extra},shell:false});
     child.once('error',reject);child.once('exit',code=>code===0?done():reject(new Error(`Comando encerrou com código ${code}.`)));
     for(const sig of ['SIGINT','SIGTERM']) process.once(sig,()=>child.kill(sig));
   });
@@ -36,10 +36,23 @@ try {
   const tsx=join(runtime,'node_modules','tsx','dist','cli.mjs');
   const mode=process.argv[2]||'dev';
   console.log(`Dados locais: ${join(root,`data-${key}`)}`);
-  if(mode==='build') {
+  async function build() {
     await run(process.execPath,[join(runtime,'node_modules','typescript','bin','tsc'),'--noEmit']);
     await run(process.execPath,[join(runtime,'node_modules','vite','bin','vite.js'),'build']);
     cpSync(join(runtime,'dist'),join(source,'dist'),{recursive:true,force:true});
+  }
+  if(mode==='build') {
+    await build();
+  } else if(mode.startsWith('cloudflare-')) {
+    const action=mode.slice('cloudflare-'.length),wrangler=join(runtime,'node_modules','wrangler','bin','wrangler.js');
+    if(action==='dev'||action==='deploy') {
+      await build();
+      if(action==='dev') {
+        const vars=join(source,'.dev.vars');if(existsSync(vars))cpSync(vars,join(runtime,'.dev.vars'));
+        await run(process.execPath,[wrangler,'dev','--port','3199']);
+      } else await run(process.execPath,[wrangler,'deploy']);
+    } else if(action==='migrate') await run(process.execPath,[wrangler,'d1','migrations','apply','dcarvalho-gestao','--remote']);
+    else await run(process.execPath,['scripts/cloudflare.mjs',action]);
   } else if(mode==='test') {
     await run(process.execPath,[tsx,'--test',...readdirSync(join(runtime,'tests')).filter(f=>f.endsWith('.test.ts')).map(f=>`tests/${f}`)]);
   } else if(mode==='smoke') {

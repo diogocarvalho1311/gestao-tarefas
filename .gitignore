@@ -11,3 +11,6 @@ backups/
 *.log
 test-results/
 refs/
+.wrangler/
+.cloudflare/
+.dev.vars*

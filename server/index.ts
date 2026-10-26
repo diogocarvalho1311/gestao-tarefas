@@ -20,6 +20,7 @@ app.use((req,res,next)=>{
 });
 app.use(express.json({limit:'1mb'}));
 app.get('/api/health',(_req,res)=>res.json({ok:true}));
+app.get('/api/auth/session',(_req,res)=>res.json({mode:'local',authenticated:true,initialized:true}));
 app.get('/api/state',(_req,res)=>res.json(store.read()));
 app.get('/api/notion',(_req,res)=>res.json(notionStatus()));
 app.get('/api/backup',(_req,res)=>{res.setHeader('Content-Disposition',`attachment; filename="dcarvalho-${today()}.json"`);res.json({version:1,exportedAt:new Date().toISOString(),state:store.read(),trash:store.trash()});});

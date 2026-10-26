@@ -1,6 +1,18 @@
 # DCarvalho
 
-Um planejador pessoal de tarefas de trabalho, orientado pelo tempo disponível. Interface escura e dados locais em SQLite. Tarefas de clientes, projetos pessoais e faculdade dividem a mesma capacidade semanal.
+Um planejador pessoal de tarefas de trabalho, orientado pelo tempo disponível. Interface escura e armazenamento em SQLite local ou Cloudflare D1 na versão online. Tarefas de clientes, projetos pessoais e faculdade dividem a mesma capacidade semanal.
+
+## Acesso online
+
+**https://dcarvalho-gestao.lucrifinancas-54e.workers.dev**
+
+A versão online funciona com o computador desligado. O primeiro acesso usa um link privado de ativação para criar a senha; a senha nunca é incluída no código. Depois, basta abrir o endereço e entrar. Há uma única conta pessoal, sem cadastro público. Use **Sair da conta** ao terminar em um dispositivo compartilhado.
+
+Os dados ficam em um banco D1 separado dos outros projetos da conta Cloudflare. A cópia local é preservada. **Local e nuvem são espaços independentes após a migração**; use o endereço online como principal para manter as edições em um só lugar. A leitura opcional do Notion continua sem criar, editar ou excluir informações remotas.
+
+Em **Configurações → Baixar backup**, baixe um JSON das tarefas, planejamento, registros, relatórios e lixeira da versão que estiver aberta. O repositório GitHub guarda apenas código. Credenciais, bancos, exportações e links de ativação são ignorados pelo Git.
+
+Instruções de manutenção, migração e recuperação de acesso: [docs/cloudflare.md](docs/cloudflare.md).
 
 ## Iniciar
 
@@ -92,7 +104,7 @@ O terminal informa o diretório exato dos dados ao iniciar: `%LOCALAPPDATA%\Comp
 - A importação de backup JSON pela interface não está incluída. Guarde o backup SQLite para restauração direta.
 - `.env` contém credenciais e não entra no backup JSON. Não o publique.
 
-O servidor aceita apenas conexões locais. Duas abas abertas não sobrescrevem alterações silenciosamente: uma revisão antiga é recusada e os dados são atualizados para uma nova tentativa. A persistência usa transações SQLite e gravação síncrona completa.
+O servidor local aceita apenas conexões locais. Duas abas abertas não sobrescrevem alterações silenciosamente: uma revisão antiga é recusada e os dados são atualizados para uma nova tentativa. A persistência local usa transações SQLite e gravação síncrona completa; a versão online grava o documento e a revisão em uma única atualização condicional no D1.
 
 ## Verificações
 
@@ -110,9 +122,10 @@ Os testes verificam cálculos de capacidade e divisão em dias, datas, relatóri
 src/            Interface React + TypeScript, estilos Tailwind/CSS e ícones Lucide
 shared/         Tipos e regras de planejamento compartilhadas
 server/         API Express, validação, SQLite e leitura do Notion
+cloudflare/     API online, autenticação e migrações do D1
 scripts/        Inicializador local, instalação e compilação
 tests/          Verificações de domínio, integração e persistência
 docs/           Mapeamento observado do Notion
 ```
 
-O SQLite utiliza o módulo integrado `node:sqlite`; no Node 22 pode aparecer um aviso de recurso experimental. Não é preciso instalar banco, autenticação, serviço pago ou ferramenta adicional.
+O SQLite local utiliza o módulo integrado `node:sqlite`; no Node 22 pode aparecer um aviso de recurso experimental. O uso local não exige instalar banco nem configurar autenticação. A versão online utiliza Workers e D1 e exige conexão com a conta Cloudflare para manutenção.

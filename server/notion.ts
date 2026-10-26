@@ -1,6 +1,9 @@
 import { randomUUID } from 'node:crypto';
-import type { Task } from '../shared/domain.js';
-import type { openStore } from './store.js';
+import type { Task, State } from '../shared/domain.js';
+export interface NotionStore {
+  read():State;save(state:State):State;baseline(id:string):string|undefined;
+  setBaseline(id:string,value:string):void;isRemovedNotion(id:string):boolean;db:{exec(sql:string):unknown};
+}
 
 const config=()=>({token:process.env.NOTION_TOKEN,source:process.env.NOTION_DATA_SOURCE_ID});
 export function notionStatus() { const c=config();return {configured:!!c.token,mode:'read-only',source:c.source||null}; }
@@ -79,7 +82,7 @@ export function pageScope(page:Page,mapping:Mapping):Task['scope'] {
   if(area.includes('pessoal'))return 'personal';
   return mapping.client&&value(page.properties[mapping.client])?'client':'personal';
 }
-export async function importNotion(store:ReturnType<typeof openStore>) {
+export async function importNotion(store:NotionStore) {
   const schema=await sourceSchema(),mapping=detectMapping(schema),pages:Page[]=[];
   let cursor:string|undefined;
   do {
