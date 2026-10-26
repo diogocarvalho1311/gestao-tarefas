@@ -3,7 +3,8 @@ import express from 'express';
 import { resolve } from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { openStore, exampleState } from './store.js';
-import { dateSchema, taskSchema, blockSchema, availabilitySchema, reportSchema } from './validation.js';
+import { dateSchema, taskSchema, blockSchema, availabilitySchema, reportSchema, dailyReviewSchema } from './validation.js';
+import { applyDailyReview, DailyReviewError } from '../shared/daily-review.js';
 import { importNotion, notionStatus } from './notion.js';
 import { today } from '../shared/domain.js';
 
@@ -100,6 +101,9 @@ app.delete('/api/time/:id',(req,res)=>{
   if(task) task.actual=state.timeEntries.filter((t:any)=>t.taskId===task.id).reduce((s:number,t:any)=>s+t.hours,0);
   res.json(store.save(state));
 });
+app.post('/api/daily-reviews',(req,res)=>{
+  res.json(store.save(applyDailyReview(res.locals.state,dailyReviewSchema.parse(req.body))));
+});
 app.put('/api/reports',(req,res)=>{
   const input=reportSchema.parse(req.body),state=res.locals.state;
   state.reports=state.reports.filter((r:any)=>r.key!==input.key);state.reports.push(input);res.json(store.save(state));
@@ -118,7 +122,7 @@ app.post('/api/notion/resolve/:id',(req,res)=>{
 });
 app.use('/api',(_req,res)=>res.status(404).json({error:'Operação não encontrada.'}));
 app.use((err:any,_req:express.Request,res:express.Response,_next:express.NextFunction)=>{
-  res.status(err.name==='ZodError'?400:500).json({error:err.name==='ZodError'?'Confira os campos: informe datas válidas, horas positivas e um nome para a tarefa.':'Não foi possível salvar. Tente novamente.'});
+  res.status(err instanceof DailyReviewError?err.status:err.name==='ZodError'?400:500).json({error:err instanceof DailyReviewError?err.message:err.name==='ZodError'?'Confira os campos: informe datas válidas, horas positivas e um nome para a tarefa.':'Não foi possível salvar. Tente novamente.'});
 });
 if(process.argv.includes('--production')) {
   app.use(express.static(resolve('dist')));app.get('/{*path}',(_req,res)=>res.sendFile(resolve('dist/index.html')));

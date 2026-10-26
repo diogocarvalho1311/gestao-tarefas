@@ -82,6 +82,16 @@ A conexão continua **somente leitura**: não há chamadas de criação, ediçã
 
 A fonte de **Relatórios Semanais** também foi identificada, mas não há publicação automática: nesta entrega a exportação gera um PDF local. Detalhes em [docs/notion-mapping.md](docs/notion-mapping.md). API: [fontes de dados do Notion](https://developers.notion.com/reference/retrieve-a-data-source), versão `2025-09-03`.
 
+## Revisão de ontem
+
+Na visão geral, **Quais atividades você fez ontem?** aparece enquanto o dia anterior não tiver sido revisado. O dia segue o horário de São Paulo e é atualizado mesmo se a aba ficar aberta durante a virada do dia.
+
+Em **Revisar ontem**, selecione primeiro as tarefas concluídas, depois as que ficaram em andamento e, por fim, informe o tempo total dedicado a cada uma em minutos ou horas. As tarefas planejadas para ontem aparecem primeiro; busca e filtro permitem encontrar atividades fora do planejamento, de qualquer área.
+
+As horas já registradas ontem vêm preenchidas. O valor informado é o total daquele dia para a tarefa e substitui esse total, sem duplicar registros ou alterar outros dias. Zero deixa a tarefa sem tempo registrado naquele dia. A conclusão usa a data de ontem nos relatórios. Se a tarefa já tiver sido concluída em um dia posterior, seu status atual é preservado.
+
+**Mais tarde** mantém o aviso pendente. Finalizar sem selecionar atividades apenas encerra o aviso, sem mudar tarefas ou horas. A revisão inteira é salva em uma única operação e só pode ser finalizada uma vez por data, inclusive entre abas ou dispositivos. O histórico `dailyReviews` faz parte dos dados e do backup. O visitante não recebe o aviso e não pode registrar revisões.
+
 ## Tabelas e clientes
 
 A coluna **Status** vem primeiro e mantém a ordem fixa **A fazer → Em andamento → Concluída**. Clique no título de outra coluna para ordenar dentro de cada status; clique novamente para inverter. Textos usam A–Z/Z–A, horas usam valores numéricos, datas seguem a ordem cronológica e prioridades seguem Baixa → Média → Alta. Datas e estimativas ausentes ficam no final de cada grupo. A mesma tabela é utilizada em todas as categorias de tarefas.

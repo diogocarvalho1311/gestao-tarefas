@@ -34,6 +34,13 @@ try {
   await stop();await start();assert.equal((await get()).tasks.length,0);
   s=await action(`/tasks/${task.id}/restore`);assert.equal(s.blocks.length,2);assert.equal(s.tasks[0].actual,6);
   await stop();await start();const after=await get();assert.deepEqual(after,s);
+  const yesterday=addDays(today(),-1);
+  s=await action('/daily-reviews',{date:yesterday,entries:[{taskId:task.id,status:'Em andamento',hours:.5}]});
+  // Completion on a later day stays completed; yesterday's time is still saved.
+  assert.equal(s.tasks[0].status,'Concluída');assert.equal(s.tasks[0].actual,6.5);assert.equal(s.dailyReviews[0].date,yesterday);
+  await action('/daily-reviews',{date:yesterday,entries:[]},'POST',409);
+  await action('/daily-reviews',{date:today(),entries:[]},'POST',400);
+  await stop();await start();assert.deepEqual(await get(),s);
   const cross=await fetch(`${base}/api/tasks`,{method:'POST',headers:{'Content-Type':'application/json',Origin:'https://external.test'},body:'{}'});assert.equal(cross.status,403);
   console.log('Smoke OK: tarefas, planejamento, relatórios, backup, exclusão local e restauração com histórico após reinício.');
 } finally {await stop();rmSync(temp,{recursive:true,force:true});}

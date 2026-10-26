@@ -1,5 +1,6 @@
 import { z } from 'zod';
-import { taskSchema, blockSchema, availabilitySchema, reportSchema } from '../server/validation';
+import { taskSchema, blockSchema, availabilitySchema, reportSchema, dailyReviewSchema } from '../server/validation';
+import { applyDailyReview, DailyReviewError } from '../shared/daily-review';
 import type { State, Task, Block } from '../shared/domain';
 import type { NotionStore } from '../server/notion';
 import type { Database } from './types';
@@ -59,6 +60,8 @@ export function mutateWorkspace(doc:Workspace,path:string,method:string,body:Rec
       s.timeEntries=s.timeEntries.filter(e=>e.id!==id);
       if(t)t.actual=s.timeEntries.filter(e=>e.taskId===t.id).reduce((sum,e)=>sum+e.hours,0);
     } else throw new ApiError(404,'Operação não encontrada.');
+  } else if(path==='/daily-reviews'&&method==='POST') {
+    try{applyDailyReview(s,dailyReviewSchema.parse(body));}catch(e){if(e instanceof DailyReviewError)throw new ApiError(e.status,e.message);throw e;}
   } else if(path==='/reports'&&method==='PUT') {
     const input=reportSchema.parse(body);s.reports=s.reports.filter(r=>r.key!==input.key);s.reports.push(input);
   } else if(parts[0]==='notion'&&parts[1]==='resolve'&&parts.length===3&&method==='POST') {

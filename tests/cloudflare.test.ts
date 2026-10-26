@@ -6,6 +6,7 @@ import worker from '../cloudflare/worker';
 import { digest, passwordHash } from '../cloudflare/auth';
 import { readWorkspace, saveWorkspace, mutateWorkspace } from '../cloudflare/workspace';
 import type { Database, Env, Statement } from '../cloudflare/types';
+import { addDays, today } from '../shared/domain';
 function database() {
   const sql=new DatabaseSync(':memory:');for(const file of readdirSync('cloudflare/migrations').filter(f=>f.endsWith('.sql')).sort())sql.exec(readFileSync(`cloudflare/migrations/${file}`,'utf8'));
   const db:Database={prepare(query:string):Statement {
@@ -46,6 +47,13 @@ test('nuvem protege dados, cria uma senha única, persiste minutos e preserva li
   one.state.availability['2026-11-03']=2;await saveWorkspace(db,one,revision);
   two.state.availability['2026-11-03']=4;await assert.rejects(saveWorkspace(db,two,revision),/outra aba/);
   assert.equal((await readWorkspace(db)).state.availability['2026-11-03'],2);
+  const yesterday=addDays(today(),-1);
+  state=await mutate('/daily-reviews',{date:yesterday,entries:[{taskId:task.id,status:'Concluída',hours:.5}]});
+  assert.equal(state.tasks[0].status,'Concluída');assert.equal(state.tasks[0].actual,.75);
+  assert.equal(state.tasks[0].completedAt.slice(0,10),yesterday);assert.equal(state.dailyReviews[0].date,yesterday);
+  const reviewed=JSON.stringify((await readWorkspace(db)).state);
+  await mutate('/daily-reviews',{date:yesterday,entries:[]},'POST',409);
+  assert.equal(JSON.stringify((await readWorkspace(db)).state),reviewed);
   await request('/auth/logout','POST',{});await request('/state','GET',undefined,401);
   await request('/auth/login','POST',{password:'wrong'},401);
   const login=await request('/auth/login','POST',{password:'a-test-password-123'});cookie=login.headers.get('Set-Cookie')!.split(';')[0];
@@ -90,7 +98,7 @@ test('visitante consulta dados fictícios sem alterar ou acessar o planejamento 
   assert.deepEqual((await (await request('/view/notion','GET',undefined,viewerCookie)).json()),{configured:false,mode:'read-only',source:null});
   await request('/view/backup','GET',undefined,viewerCookie,403);
   const allCookies=ownerCookie+'; '+viewerCookie;
-  for(const [path,method] of [['/tasks','POST'],['/tasks/private','PUT'],['/tasks/private','DELETE'],['/tasks/private/restore','POST'],['/blocks','POST'],['/blocks/private','PUT'],['/blocks/private','DELETE'],['/time','POST'],['/time/private','DELETE'],['/availability','PUT'],['/reports','PUT'],['/notion/sync','POST'],['/notion/resolve/private','POST'],['/examples','POST'],['/examples','DELETE']]) {
+  for(const [path,method] of [['/daily-reviews','POST'],['/tasks','POST'],['/tasks/private','PUT'],['/tasks/private','DELETE'],['/tasks/private/restore','POST'],['/blocks','POST'],['/blocks/private','PUT'],['/blocks/private','DELETE'],['/time','POST'],['/time/private','DELETE'],['/availability','PUT'],['/reports','PUT'],['/notion/sync','POST'],['/notion/resolve/private','POST'],['/examples','POST'],['/examples','DELETE']]) {
     await request('/view'+path,method,{revision:demo.revision},allCookies,403);
   }
   await request('/view/auth/setup','POST',{token:'anything',password:viewerPassword},viewerCookie,403);
