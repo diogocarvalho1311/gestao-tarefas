@@ -7,7 +7,7 @@ O frontend React é servido pelo Cloudflare Pages. `cloudflare/worker.ts` é com
 - URL: https://dcarvalho-tarefas.pages.dev
 - O acesso aos dados requer sessão válida. A criação de senha exige um token aleatório de primeiro acesso; não há cadastro público.
 - O token é enviado no fragmento do link, removido da barra de endereço pelo aplicativo e validado contra um hash armazenado como segredo do Pages. O link vale por três dias e deixa de funcionar após a criação da senha.
-- Senhas usam PBKDF2 SHA-256 com salt individual e 100.000 iterações. Sessões aleatórias são armazenadas apenas como hash no banco, expiram em 14 dias e usam cookie `HttpOnly`, `Secure` e `SameSite=Strict`.
+- Senhas usam PBKDF2 SHA-256 com salt individual e 100.000 iterações. Sessões aleatórias são armazenadas apenas como hash no banco, expiram em 14 dias para o proprietário ou um dia para visitantes e usam cookie `HttpOnly`, `Secure` e `SameSite=Strict`.
 - Tentativas de autenticação são limitadas por IP. Escritas recusam origens externas e revisões desatualizadas. Não há CORS público para os dados.
 - A migração preserva tarefas, blocos, registros de tempo, relatórios, disponibilidade, lixeira e referências de importação do Notion. Depois da cópia inicial, os bancos local e online não se sincronizam.
 - O banco é persistente e não é recriado nos deploys. Migrações aplicadas não devem ser editadas; novas mudanças de esquema exigem novos arquivos SQL.
@@ -61,3 +61,20 @@ O botão **Baixar backup** exige login e inclui a lixeira local do app. Para rec
 Os testes de `tests/cloudflare.test.ts` verificam autenticação, ativação única, expiração e revogação de sessão, limites de tentativas, rejeição de origens externas, minutos, persistência, exclusão reversível e gravações concorrentes. O fluxo também é validado no runtime Workers com navegador.
 
 Referências: [Workers Static Assets](https://developers.cloudflare.com/workers/static-assets/), [D1](https://developers.cloudflare.com/d1/), [Wrangler](https://developers.cloudflare.com/workers/wrangler/).
+
+
+## Demonstração de visitante
+
+O link público `/visualizacao` usa login separado, cookie `__Host-dcarvalho-viewer` e sessões com papel `viewer`. As sessões pessoais continuam com papel `owner` e outro cookie. Renomear um cookie de visitante não concede acesso pessoal.
+
+Após aplicar as migrações, configure ou renove a senha pública da demonstração:
+
+```powershell
+$env:DCARVALHO_VIEWER_PASSWORD = 'DCarvalho-Visita2026!'
+npm run cloudflare:viewer
+Remove-Item Env:DCARVALHO_VIEWER_PASSWORD
+```
+
+O comando grava apenas o hash com salt na tabela `viewer_access` e revoga sessões de visitante. Não altera a senha pessoal, suas sessões ou o planejamento. Ao trocar essa senha, atualize também as credenciais públicas no README.
+
+`/api/view/state` produz dados fictícios de `shared/demo.ts`, com datas relativas à semana atual. Não lê a tabela `workspace`. O visitante não recebe dados pessoais, credenciais, backups ou referências do Notion. A API recusa alterações com HTTP 403, inclusive tarefas, blocos, horas, disponibilidades, relatórios e importação. Os únicos POST permitidos são entrar e sair da própria sessão. A interface permite consulta, filtros, detalhes e exportação dos relatórios fictícios.

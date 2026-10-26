@@ -14,7 +14,8 @@
     "cloudflare:secrets": "node scripts/run.mjs cloudflare-secrets",
     "cloudflare:import": "node scripts/run.mjs cloudflare-import-local",
     "cloudflare:deploy": "node scripts/run.mjs cloudflare-deploy",
-    "cloudflare:status": "node scripts/run.mjs cloudflare-status"
+    "cloudflare:status": "node scripts/run.mjs cloudflare-status",
+    "cloudflare:viewer": "node scripts/run.mjs cloudflare-viewer"
   },
   "dependencies": {
     "@fontsource/geist": "^5.2.0",

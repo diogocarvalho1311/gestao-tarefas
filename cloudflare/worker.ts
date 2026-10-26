@@ -1,6 +1,7 @@
 import { importNotion, notionStatus } from '../server/notion';
 import { today } from '../shared/domain';
-import { authenticated, authResponse } from './auth';
+import { sessionAccess, authResponse } from './auth';
+import { demoState } from '../shared/demo';
 import { ApiError, mutateWorkspace, notionMemoryStore, readWorkspace, saveWorkspace, validRevision } from './workspace';
 import type { Env } from './types';
 const securityHeaders={
@@ -11,7 +12,7 @@ const securityHeaders={
 };
 function secured(response:Response) {const out=new Response(response.body,response);for(const [k,v] of Object.entries(securityHeaders))out.headers.set(k,v);return out;}
 async function handle(request:Request,env:Env):Promise<Response> {
-  const url=new URL(request.url),path=url.pathname.slice(4),api=url.pathname.startsWith('/api/');
+  const url=new URL(request.url),api=url.pathname.startsWith('/api/'),viewer=url.pathname.startsWith('/api/view/'),path=url.pathname.slice(viewer?9:4),role=viewer?'viewer':'owner';
   if(!api)return env.ASSETS.fetch(request);
   const db=env.DB.withSession?.('first-primary')||env.DB;
   if(path==='/health'&&request.method==='GET')return Response.json({ok:true});
@@ -27,8 +28,16 @@ async function handle(request:Request,env:Env):Promise<Response> {
     const raw=await request.text();if(raw.length>1048576)throw new ApiError(413,'Os dados excedem o limite permitido.');
     try {body=JSON.parse(raw);if(!body||typeof body!=='object'||Array.isArray(body))throw Error();}catch{throw new ApiError(400,'JSON inválido.');}
   }
-  if(path.startsWith('/auth/'))return authResponse(path,request,env,body,db);
-  if(!await authenticated(request,db))throw new ApiError(401,'Sua sessão expirou. Entre novamente.');
+  if(path.startsWith('/auth/'))return authResponse(path,request,env,body,db,role);
+  const access=await sessionAccess(request,db,role);
+  if(!access)throw new ApiError(401,'Sua sessão expirou. Entre novamente.');
+  if(access.role==='viewer') {
+    if(writes)throw new ApiError(403,'Este acesso permite apenas visualização.');
+    if(path==='/state'&&request.method==='GET')return Response.json(demoState());
+    if(path==='/notion'&&request.method==='GET')return Response.json({configured:false,mode:'read-only',source:null});
+    if(path==='/backup')throw new ApiError(403,'O backup completo está disponível apenas no acesso pessoal.');
+    throw new ApiError(404,'Operação não encontrada.');
+  }
   if(path==='/notion'&&request.method==='GET')return Response.json(notionStatus());
   const doc=await readWorkspace(db),revision=doc.state.revision;
   if(path==='/state'&&request.method==='GET')return Response.json(doc.state);

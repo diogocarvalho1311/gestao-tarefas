@@ -636,3 +636,21 @@ th[aria-sort=ascending] svg, th[aria-sort=descending] svg { opacity: 1; }
   .settings-content p { font-size: 12px; }
   .main-footer { font-size: 9px; }
 }
+
+
+/* Visitor mode uses the same visual system as the personal workspace. */
+.viewer-badge { display: inline-flex; align-items: center; gap: 7px; color: var(--text-muted, #b3aaa3); font-size: 12px; }
+.viewer-notice { display: flex; gap: 10px; align-items: center; margin-bottom: 22px; }
+.viewer-notice svg { color: var(--accent, #c55d2b); flex-shrink: 0; }
+.viewer-username { color: #a89f98; font-size: 13px; margin: 0 0 16px; }
+.viewer-username strong { color: #e9e4df; font-weight: 500; }
+.login-view-link { justify-content: center; display: flex; margin: 16px auto 0; }
+.task-details-group { display: flex; align-items: center; gap: 8px; color: #b8ada4; font-size: 12px; }
+.task-details h3 { font-size: 21px; line-height: 1.4; margin: 12px 0 24px; }
+.task-details dl { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 22px 14px; margin-bottom: 26px; }
+.task-details dt { font-size: 11px; color: #a89f98; margin-bottom: 7px; }
+.task-details dd { margin: 0; font-size: 14px; }
+.task-details section { border-top: 1px solid #39332e; padding: 18px 0 0; margin-top: 18px; }
+.task-details h4 { display: flex; align-items: center; gap: 8px; margin: 0 0 10px; font-size: 13px; font-weight: 500; }
+.task-details section p { color: #b8ada4; font-size: 13px; white-space: pre-wrap; line-height: 1.7; }
+@media (max-width: 600px) { .task-details dl { grid-template-columns: repeat(2,minmax(0,1fr)); } .viewer-badge { font-size: 10px; } }

@@ -3,7 +3,7 @@ import 'dotenv/config';
 import { DatabaseSync } from 'node:sqlite';
 import { readFileSync,writeFileSync,mkdirSync,existsSync } from 'node:fs';
 import { join,resolve } from 'node:path';
-import { randomBytes,createHash } from 'node:crypto';
+import { randomBytes,createHash,pbkdf2Sync } from 'node:crypto';
 import { spawn } from 'node:child_process';
 const source=process.env.DCARVALHO_SOURCE_DIR||process.cwd(),privateDir=join(source,'.cloudflare');
 const config=JSON.parse(readFileSync('wrangler.jsonc','utf8')),account=process.env.CLOUDFLARE_ACCOUNT_ID||JSON.parse(readFileSync('cloudflare/account.json','utf8')).account_id,database=config.d1_databases[0].database_id;
@@ -28,7 +28,14 @@ async function wranglerSecrets(values) {
 }
 const action=process.argv[2];
 try {
-  if(action==='secrets') {
+  if(action==='viewer') {
+    const password=process.env.DCARVALHO_VIEWER_PASSWORD;
+    if(!password||password.length<12||password.length>256)throw Error('Defina DCARVALHO_VIEWER_PASSWORD com 12 a 256 caracteres.');
+    const salt=randomBytes(32).toString('hex'),hash=pbkdf2Sync(password,salt,100000,32,'sha256').toString('hex');
+    await query("INSERT INTO viewer_access(id,password_hash,salt,created_at,dataset) VALUES(1,?,?,?,'demo') ON CONFLICT(id) DO UPDATE SET password_hash=excluded.password_hash,salt=excluded.salt,dataset='demo'",[hash,salt,Date.now()]);
+    await query('DELETE FROM viewer_sessions');
+    console.log('Acesso de visitante configurado: demonstração fictícia, somente leitura.');
+  } else if(action==='secrets') {
     const owner=await query('SELECT id FROM owner WHERE id=1');
     let deployment=existsSync(privateState)?JSON.parse(readFileSync(privateState,'utf8')):{};
     const values={};

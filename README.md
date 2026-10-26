@@ -2,11 +2,20 @@
 
 Um planejador pessoal de tarefas de trabalho, orientado pelo tempo disponível. Interface escura e armazenamento em SQLite local ou Cloudflare D1 na versão online. Tarefas de clientes, projetos pessoais e faculdade dividem a mesma capacidade semanal.
 
+## Demonstração
+
+**[Abrir demonstração — somente leitura](https://dcarvalho-tarefas.pages.dev/visualizacao)**
+
+- Usuário: **visitante**
+- Senha: **`DCarvalho-Visita2026!`**
+
+Explore tarefas, clientes, projetos pessoais, faculdade, calendários e relatórios com **dados fictícios**. Busca, filtros, ordenação e exportação de relatórios estão disponíveis. O visitante não pode criar, editar ou excluir dados; essa restrição também é aplicada na API. A demonstração é independente do planejamento pessoal e não consulta o Notion.
+
 ## Acesso online
 
 **https://dcarvalho-tarefas.pages.dev**
 
-A versão online funciona com o computador desligado. O primeiro acesso usa um link privado de ativação para criar a senha; a senha nunca é incluída no código. Depois, basta abrir o endereço e entrar. Há uma única conta pessoal, sem cadastro público. Use **Sair da conta** ao terminar em um dispositivo compartilhado.
+A versão online funciona com o computador desligado. O primeiro acesso usa um link privado de ativação para criar a senha; a senha nunca é incluída no código. Depois, basta abrir o endereço e entrar. O acesso pessoal é separado do visitante, sem cadastro público. Use **Sair da conta** ao terminar em um dispositivo compartilhado.
 
 Os dados ficam em um banco D1 separado dos outros projetos da conta Cloudflare. A cópia local é preservada. **Local e nuvem são espaços independentes após a migração**; use o endereço online como principal para manter as edições em um só lugar. A leitura opcional do Notion continua sem criar, editar ou excluir informações remotas.
 
