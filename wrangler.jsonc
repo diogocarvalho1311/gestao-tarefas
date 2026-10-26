@@ -1,24 +1,13 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "dcarvalho-gestao",
-  "main": "cloudflare/worker.ts",
-  "account_id": "54e143232ae5e44e329a3d76d46a7460",
+  "name": "dcarvalho-tarefas",
+  "pages_build_output_dir": "./dist",
   "compatibility_date": "2026-10-01",
   "compatibility_flags": ["nodejs_compat"],
-  "workers_dev": true,
-  "preview_urls": false,
-  "assets": {
-    "directory": "./dist",
-    "binding": "ASSETS",
-    "not_found_handling": "single-page-application",
-    "run_worker_first": ["/api/*"]
-  },
   "d1_databases": [{
     "binding": "DB",
     "database_name": "dcarvalho-gestao",
     "database_id": "96bb3f3a-be99-4273-b5ed-7de9e34d0562",
     "migrations_dir": "cloudflare/migrations"
-  }],
-  "minify": true,
-  "upload_source_maps": false
+  }]
 }

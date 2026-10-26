@@ -47,10 +47,11 @@ try {
     const action=mode.slice('cloudflare-'.length),wrangler=join(runtime,'node_modules','wrangler','bin','wrangler.js');
     if(action==='dev'||action==='deploy') {
       await build();
+      await run(process.execPath,['scripts/build-pages.mjs']);
       if(action==='dev') {
         const vars=join(source,'.dev.vars');if(existsSync(vars))cpSync(vars,join(runtime,'.dev.vars'));
-        await run(process.execPath,[wrangler,'dev','--port','3199']);
-      } else await run(process.execPath,[wrangler,'deploy']);
+        await run(process.execPath,[wrangler,'pages','dev','dist','--port','3199']);
+      } else await run(process.execPath,[wrangler,'pages','deploy','dist','--project-name','dcarvalho-tarefas','--branch','main','--commit-dirty=true']);
     } else if(action==='migrate') await run(process.execPath,[wrangler,'d1','migrations','apply','dcarvalho-gestao','--remote']);
     else await run(process.execPath,['scripts/cloudflare.mjs',action]);
   } else if(mode==='test') {

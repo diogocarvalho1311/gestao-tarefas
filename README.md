@@ -4,7 +4,7 @@ Um planejador pessoal de tarefas de trabalho, orientado pelo tempo disponível. 
 
 ## Acesso online
 
-**https://dcarvalho-gestao.lucrifinancas-54e.workers.dev**
+**https://dcarvalho-tarefas.pages.dev**
 
 A versão online funciona com o computador desligado. O primeiro acesso usa um link privado de ativação para criar a senha; a senha nunca é incluída no código. Depois, basta abrir o endereço e entrar. Há uma única conta pessoal, sem cadastro público. Use **Sair da conta** ao terminar em um dispositivo compartilhado.
 

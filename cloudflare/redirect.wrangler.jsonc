@@ -1,0 +1,9 @@
+{
+  "$schema": "../node_modules/wrangler/config-schema.json",
+  "name": "dcarvalho-gestao",
+  "main": "redirect.ts",
+  "account_id": "54e143232ae5e44e329a3d76d46a7460",
+  "compatibility_date": "2026-10-01",
+  "workers_dev": true,
+  "preview_urls": false
+}
