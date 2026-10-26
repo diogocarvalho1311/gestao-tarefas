@@ -84,7 +84,7 @@ A fonte de **Relatórios Semanais** também foi identificada, mas não há publi
 
 ## Tabelas e clientes
 
-Clique no título de uma coluna para ordenar; clique novamente para inverter. Textos usam A–Z/Z–A, horas usam valores numéricos, datas seguem a ordem cronológica e prioridades seguem Baixa → Média → Alta. Datas e estimativas ausentes ficam no final. A mesma tabela é utilizada em todas as categorias de tarefas.
+Ao abrir uma lista, a coluna **Status** vem primeiro e a ordem inicial é **A fazer → Em andamento → Concluída**. Clique no título de uma coluna para ordenar; clique novamente para inverter. Textos usam A–Z/Z–A, horas usam valores numéricos, datas seguem a ordem cronológica e prioridades seguem Baixa → Média → Alta. Datas e estimativas ausentes ficam no final. A mesma tabela é utilizada em todas as categorias de tarefas.
 
 Os pontos têm cores fixas: **CWB Kids rosa**, **Lucri verde**, **Minhas tarefas amarelo** e **Meus projetos roxo**. As cores de prioridade continuam independentes dessas cores.
 
