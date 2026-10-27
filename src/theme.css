@@ -297,6 +297,10 @@ td { color: #c4b5a7; border-color: #39302a; padding: 19px 14px; }
 .sort-heading:hover, th[aria-sort=ascending] .sort-heading, th[aria-sort=descending] .sort-heading { color: #f3be99; }
 th[aria-sort=ascending] svg, th[aria-sort=descending] svg { opacity: 1; }
 .table-actions { display: flex; align-items: center; gap: 4px; }
+.tasks-panel .table-scroll { width: 100%; min-width: 0; position: relative; scroll-padding-inline-end: 104px; }
+.task-actions-column { position: sticky; right: 0; z-index: 1; width: 104px; min-width: 104px; padding-left: 18px; padding-right: 18px; background: var(--panel); box-shadow: -1px 0 0 var(--line); text-align: center; }
+th.task-actions-column { z-index: 2; background: #191919; }
+.task-actions-column .table-actions { min-width: 64px; justify-content: center; flex-wrap: nowrap; }
 .delete-task { color: #bd9289; }
 .delete-task:hover { background: #422823; color: #efb4a7; }
 .undo-toast { background: #30271f; border-color: #8c694b; color: #edd4bc; }
