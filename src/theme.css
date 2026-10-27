@@ -65,7 +65,7 @@ main { margin-left: 248px; width: calc(100% - 248px); }
 .icon-button:hover { background: #ffffff0b; color: #f6d0b4; }
 .main-content { max-width: 1550px; padding-top: 38px; }
 .page-heading { margin-bottom: 30px; }
-.page-heading-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; flex-shrink: 0; }
+.page-heading-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; flex-shrink: 0; max-width: 100%; }
 .eyebrow { font-size: 10px; letter-spacing: .08em; color: #aa8c77; margin-bottom: 12px; }
 .page-heading p { font-size: 13px; margin-top: 11px; color: #a39d97; }
 .button { border-radius: 18px; background: #282828; border-color: #414141; color: #e5e0db; font-size: 13px; min-height: 40px; padding: 10px 16px; font-weight: 500; }
