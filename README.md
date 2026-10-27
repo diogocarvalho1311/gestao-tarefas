@@ -84,13 +84,13 @@ A fonte de **Relatórios Semanais** também foi identificada, mas não há publi
 
 ## Revisão de ontem
 
-Na visão geral, **Quais atividades você fez ontem?** aparece enquanto o dia anterior não tiver sido revisado. O dia segue o horário de São Paulo e é atualizado mesmo se a aba ficar aberta durante a virada do dia.
+Na visão geral, o aviso de revisão aparece enquanto houver dias anteriores sem resposta, incluindo datas além de ontem. A lista começa pela pendência mais antiga, mostra quantos dias faltam e permite escolher a data. O dia segue o horário de São Paulo e é atualizado mesmo se a aba ficar aberta durante a virada do dia.
 
-Em **Revisar ontem**, selecione primeiro as tarefas concluídas, depois as que ficaram em andamento e, por fim, informe o tempo total dedicado a cada uma em minutos ou horas. As tarefas planejadas para ontem aparecem primeiro; busca e filtro permitem encontrar atividades fora do planejamento, de qualquer área.
+Em **Revisar ontem** ou **Responder revisões**, selecione primeiro as tarefas concluídas, depois as que ficaram em andamento e, por fim, informe o tempo total dedicado a cada uma em minutos ou horas. As tarefas planejadas para a data escolhida aparecem primeiro; busca e filtro permitem encontrar atividades fora do planejamento, de qualquer área. **Salvar e próxima revisão** avança para outra data pendente; **Mais tarde** mantém as demais na fila.
 
-As horas já registradas ontem vêm preenchidas. O valor informado é o total daquele dia para a tarefa e substitui esse total, sem duplicar registros ou alterar outros dias. Zero deixa a tarefa sem tempo registrado naquele dia. A conclusão usa a data de ontem nos relatórios. Se a tarefa já tiver sido concluída em um dia posterior, seu status atual é preservado.
+As horas já registradas na data vêm preenchidas. O valor informado é o total daquele dia para a tarefa e substitui esse total, sem duplicar registros ou alterar outros dias. Zero deixa a tarefa sem tempo registrado naquele dia. A conclusão usa a data da revisão nos relatórios. Se a tarefa já tiver sido concluída ou revisada em um dia posterior, seu status atual é preservado.
 
-**Mais tarde** mantém o aviso pendente. Finalizar sem selecionar atividades apenas encerra o aviso, sem mudar tarefas ou horas. A revisão inteira é salva em uma única operação e só pode ser finalizada uma vez por data, inclusive entre abas ou dispositivos. O histórico `dailyReviews` faz parte dos dados e do backup. O visitante não recebe o aviso e não pode registrar revisões.
+Finalizar sem selecionar atividades apenas encerra o aviso daquela data, sem mudar tarefas ou horas. A revisão inteira é salva em uma única operação e só pode ser finalizada uma vez por data, inclusive entre abas ou dispositivos. O início do acompanhamento é persistido em `dailyReviewStartDate`, sem criar pendências a partir de todo o histórico importado do Notion. Esse marco e o histórico `dailyReviews` fazem parte dos dados e do backup. O visitante não recebe o aviso e não pode registrar revisões.
 
 ## Tabelas e clientes
 

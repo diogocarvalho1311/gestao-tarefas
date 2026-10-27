@@ -1,4 +1,4 @@
-import { addDays, today, type DailyReviewEntry, type State } from './domain.js';
+import { addDays, today, type DailyReviewEntry, type State, type Task } from './domain.js';
 
 export class DailyReviewError extends Error { constructor(public status:400|404|409,message:string){super(message);} }
 export const taskHoursOn=(state:State,taskId:string,date:string)=>state.timeEntries.filter(e=>e.taskId===taskId&&e.date===date).reduce((sum,e)=>sum+e.hours,0);
@@ -9,13 +9,21 @@ export function completionDay(value:string|null) {
 }
 export function reviewTasks(state:State,date:string) {
   const scheduled=new Set(state.blocks.filter(b=>b.date===date).map(b=>b.taskId)),worked=new Set(state.timeEntries.filter(e=>e.date===date).map(e=>e.taskId));
-  return state.tasks.filter(t=>t.status!=='Concluída'||completionDay(t.completedAt)===date||scheduled.has(t.id)||worked.has(t.id))
+  return state.tasks.filter(t=>t.status!=='Concluída'||(completionDay(t.completedAt)||'')>=date||scheduled.has(t.id)||worked.has(t.id))
     .sort((a,b)=>Number(scheduled.has(b.id)||worked.has(b.id))-Number(scheduled.has(a.id)||worked.has(a.id))||a.title.localeCompare(b.title,'pt-BR'));
 }
-export const pendingReviewDate=(state:State,currentDay=today())=>{
+export const reviewStartDate=(state:State,currentDay=today())=>[state.dailyReviewStartDate||addDays(currentDay,-1),...(state.dailyReviews||[]).map(r=>r.date)].sort()[0];
+export function pendingReviewDates(state:State,currentDay=today()) {
+  if(!state.tasks.length)return [];
   const yesterday=addDays(currentDay,-1);
-  return state.tasks.length&&!(state.dailyReviews||[]).some(r=>r.date===yesterday)?yesterday:null;
-};
+  const answered=new Set((state.dailyReviews||[]).map(r=>r.date)),dates:string[]=[];
+  for(let date=reviewStartDate(state,currentDay);date<=yesterday;date=addDays(date,1))if(!answered.has(date))dates.push(date);
+  return dates;
+}
+export const pendingReviewDate=(state:State,currentDay=today())=>pendingReviewDates(state,currentDay)[0]||null;
+export const hasLaterTaskUpdate=(state:State,task:Task,date:string)=>
+  (task.status==='Concluída'&&(completionDay(task.completedAt)||'')>date)||
+  (state.dailyReviews||[]).some(r=>r.date>date&&r.entries.some(e=>e.taskId===task.id));
 // Both backends validate and apply the complete review before their single save.
 export function applyDailyReview(state:State,input:{date:string;entries:DailyReviewEntry[]},currentDay=today()) {
   const {date,entries}=input;
@@ -32,7 +40,7 @@ export function applyDailyReview(state:State,input:{date:string;entries:DailyRev
   if(dayTotal>24+1e-8)throw new DailyReviewError(400,'O tempo total registrado nesse dia não pode ultrapassar 24 horas.');
   for(const {entry,task} of checked) {
     // A retrospective must not reopen something already finished on a later day.
-    if(!(task.status==='Concluída'&&task.completedAt&&(completionDay(task.completedAt)||'')>date)) {
+    if(!hasLaterTaskUpdate(state,task,date)) {
       if(task.status!==entry.status&&task.notionId&&(task.notionFields||['status']).includes('status'))task.dirty=true;
       task.status=entry.status;
       task.completedAt=entry.status==='Concluída'?(task.completedAt||`${date}T12:00:00-03:00`):null;
@@ -44,6 +52,7 @@ export function applyDailyReview(state:State,input:{date:string;entries:DailyRev
     }
     task.actual=state.timeEntries.filter(e=>e.taskId===task.id).reduce((sum,e)=>sum+e.hours,0);
   }
+  state.dailyReviewStartDate=[reviewStartDate(state,currentDay),date].sort()[0];
   state.dailyReviews=[...(state.dailyReviews||[]),{date,reviewedAt:new Date().toISOString(),entries:entries.map(e=>({...e}))}];
   return state;
 }

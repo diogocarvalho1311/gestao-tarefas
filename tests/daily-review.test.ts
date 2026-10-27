@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { exampleState, openStore } from '../server/store.js';
-import { applyDailyReview, completionDay, pendingReviewDate, reviewTasks, taskHoursOn } from '../shared/daily-review.js';
+import { applyDailyReview, completionDay, pendingReviewDate, pendingReviewDates, reviewTasks, taskHoursOn } from '../shared/daily-review.js';
 import { dailyReviewSchema } from '../server/validation.js';
 import { reportMetrics } from '../shared/reports.js';
 import { addDays, today, weekStart } from '../shared/domain.js';
@@ -44,4 +44,16 @@ test('datas da revisão seguem São Paulo e tarefas fora do planejamento também
   const candidates=reviewTasks(s,date);assert.equal(candidates[0].id,s.tasks[1].id);assert.ok(candidates.some(t=>t.id===s.tasks[0].id));assert.ok(candidates.some(t=>t.id===s.tasks[2].id));
   const reviewDate=pendingReviewDate(s,'2026-10-26');assert.equal(reviewDate,date);
   const taskBefore=structuredClone(s.tasks);applyDailyReview(s,{date,entries:[]},'2026-10-26');assert.deepEqual(s.tasks,taskBefore);assert.equal(pendingReviewDate(s,'2026-10-26'),null);
+});
+
+test('dias sem resposta continuam pendentes e responder fora de ordem preserva atualizações mais recentes',()=>{
+  const s=exampleState(),current='2026-10-26',task=s.tasks[0];
+  s.dailyReviewStartDate='2026-10-20';s.dailyReviews=[{date:'2026-10-21',reviewedAt:'2026-10-22T12:00:00Z',entries:[]}];s.timeEntries=[];
+  assert.deepEqual(pendingReviewDates(s,current),['2026-10-20','2026-10-22','2026-10-23','2026-10-24','2026-10-25']);
+  applyDailyReview(s,{date:'2026-10-24',entries:[{taskId:task.id,status:'Em andamento',hours:.5}]},current);
+  applyDailyReview(s,{date:'2026-10-22',entries:[{taskId:task.id,status:'Concluída',hours:1}]},current);
+  assert.equal(task.status,'Em andamento');assert.equal(task.completedAt,null);assert.equal(task.actual,1.5);
+  assert.equal(taskHoursOn(s,task.id,'2026-10-22'),1);assert.equal(taskHoursOn(s,task.id,'2026-10-24'),.5);
+  assert.deepEqual(pendingReviewDates(s,current),['2026-10-20','2026-10-23','2026-10-25']);
+  assert.deepEqual(pendingReviewDates(s,'2026-10-28'),['2026-10-20','2026-10-23','2026-10-25','2026-10-26','2026-10-27']);
 });

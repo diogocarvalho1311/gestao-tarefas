@@ -3,8 +3,9 @@ import { mkdirSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { addDays, weekStart, today, type State, type Task } from '../shared/domain.js';
+import { reviewStartDate } from '../shared/daily-review.js';
 
-export function emptyState(): State { return {tasks:[],blocks:[],timeEntries:[],availability:{},reports:[],revision:0}; }
+export function emptyState(): State { return {tasks:[],blocks:[],timeEntries:[],availability:{},reports:[],revision:0,dailyReviewStartDate:addDays(today(),-1)}; }
 export function exampleState(): State {
   const s=emptyState(), week=weekStart();
   const examples: [string,string,Task['priority'],number,number,Task['status']][] = [
@@ -31,7 +32,8 @@ export function openStore(filename: string) {
   db.prepare('INSERT OR IGNORE INTO app_state(id,data) VALUES(1,?)').run(JSON.stringify(emptyState()));
   // Retire the old local status without deleting tasks or touching the Notion source.
   const stored=JSON.parse((db.prepare('SELECT data FROM app_state WHERE id=1').get() as {data:string}).data);
-  if(stored.tasks.some((t:{status:string})=>t.status==='Bloqueada')) {
+  if(!stored.dailyReviewStartDate||stored.tasks.some((t:{status:string})=>t.status==='Bloqueada')) {
+    stored.dailyReviewStartDate=reviewStartDate(stored);
     stored.tasks=stored.tasks.map((t:{status:string})=>t.status==='Bloqueada'?{...t,status:'A fazer'}:t);
     stored.revision++;db.prepare('UPDATE app_state SET data=? WHERE id=1').run(JSON.stringify(stored));
   }

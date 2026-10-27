@@ -130,3 +130,13 @@ test('migração de visitante preserva sessões pessoais existentes',()=>{
   assert.equal(sql.prepare("SELECT name FROM sqlite_master WHERE name='viewer'").get(),undefined);
   sql.close();
 });
+
+test('migração das revisões registra o início sem alterar tarefas, horas ou respostas anteriores',()=>{
+  const sql=new DatabaseSync(':memory:');sql.exec(readFileSync('cloudflare/migrations/0001_workspace.sql','utf8'));
+  const start=addDays(today(),-3),doc={state:{tasks:[{id:'keep-task',notes:'preserve'}],blocks:[],timeEntries:[{id:'keep-time',taskId:'keep-task',date:start,hours:1}],availability:{},reports:[],revision:7,dailyReviews:[{date:start,reviewedAt:today(),entries:[]}]},trash:{},baselines:{}};
+  sql.prepare('UPDATE workspace SET data=?,revision=7 WHERE id=1').run(JSON.stringify(doc));
+  sql.exec(readFileSync('cloudflare/migrations/0004_daily_review_start.sql','utf8'));
+  const row=sql.prepare('SELECT data,revision FROM workspace').get()!,after=JSON.parse(row.data as string);
+  assert.deepEqual(after.state.tasks,doc.state.tasks);assert.deepEqual(after.state.timeEntries,doc.state.timeEntries);assert.deepEqual(after.state.dailyReviews,doc.state.dailyReviews);
+  assert.equal(after.state.dailyReviewStartDate,start);assert.equal(after.state.revision,8);assert.equal(row.revision,8);sql.close();
+});

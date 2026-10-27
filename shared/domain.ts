@@ -11,7 +11,7 @@ export interface TimeEntry { id: string; taskId: string; date: string; hours: nu
 export interface DailyReviewEntry { taskId: string; status: 'Em andamento' | 'Concluída'; hours: number }
 export interface DailyReview { date: string; reviewedAt: string; entries: DailyReviewEntry[] }
 export interface Report { key: string; done: string; next: string; comments: string; title?: string; status?: 'Rascunho' | 'Enviado'; doneTaskIds?: string[]; nextTaskIds?: string[]; doneNotes?: string; nextNotes?: string }
-export interface State { tasks: Task[]; blocks: Block[]; timeEntries: TimeEntry[]; availability: Record<string,number>; reports: Report[]; revision: number; dailyReviews?: DailyReview[] }
+export interface State { tasks: Task[]; blocks: Block[]; timeEntries: TimeEntry[]; availability: Record<string,number>; reports: Report[]; revision: number; dailyReviews?: DailyReview[]; dailyReviewStartDate?: string }
 export const priorities: Priority[] = ['Alta','Média','Baixa'];
 export const statuses: Status[] = ['A fazer','Em andamento','Concluída'];
 export function today() { return new Intl.DateTimeFormat('en-CA', { timeZone:'America/Sao_Paulo',year:'numeric',month:'2-digit',day:'2-digit' }).format(new Date()); }
