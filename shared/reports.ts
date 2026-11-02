@@ -2,10 +2,17 @@ import { addDays, groupKey, inWeek, reportCandidates, type Report, type State, t
 export { reportCandidates } from './domain.js';
 export const reportHeadings={done:'O que eu fiz de mais relevante na semana passada?',next:'O que está planejado de mais relevante para realizar essa semana?',comments:'Comentários'};
 const day=(date:string)=>date.slice(8,10);
-export function defaultReportTitle(week:string,label:string) {
-  const end=addDays(week,6);
-  const period=week.slice(0,7)===end.slice(0,7)?`${day(week)}-${day(end)}/${week.slice(5,7)}`:`${day(week)}/${week.slice(5,7)} - ${day(end)}/${end.slice(5,7)}`;
+function datedReportTitle(start:string,label:string,separator:string) {
+  const end=addDays(start,6);
+  const period=start.slice(0,7)===end.slice(0,7)?`${day(start)}-${day(end)}${separator}${start.slice(5,7)}`:`${day(start)}${separator}${start.slice(5,7)} - ${day(end)}${separator}${end.slice(5,7)}`;
   return `${period} - ${label}`;
+}
+export function defaultReportTitle(week:string,label:string) {
+  return datedReportTitle(addDays(week,-7),label,'.');
+}
+export function initialReportTitle(title:string|undefined,week:string,label:string) {
+  const legacyTitles=[datedReportTitle(week,label,'/'),datedReportTitle(addDays(week,-7),label,'/')];
+  return title===undefined||legacyTitles.includes(title)?defaultReportTitle(week,label):title;
 }
 export const reportPeriod=(week:string)=>[week,addDays(week,6)].map(d=>new Date(`${d}T12:00:00Z`).toLocaleDateString('pt-BR',{day:'numeric',month:'long',year:'numeric',timeZone:'UTC'})).join(' → ');
 export function composeReport(report:Report,state:State):Report {
@@ -20,5 +27,5 @@ export function reportMetrics(state:State,week:string,group:string,report:Report
   return {doneCount:tasks.filter(t=>done.has(t.id)&&t.status==='Concluída').length,workedHours:entries.reduce((s,e)=>s+e.hours,0),doneHours:entries.filter(e=>done.has(e.taskId)).reduce((s,e)=>s+e.hours,0),nextHours:state.blocks.filter(b=>ids.has(b.taskId)&&inWeek(b.date,week)).reduce((s,b)=>s+b.hours,0)};
 }
 export function formattedReport(report:Report,week:string,label:string) {
-  return `${report.title||defaultReportTitle(week,label)}\nCliente / projeto: ${label}\nPeríodo: ${reportPeriod(week)}\nStatus: ${report.status||'Rascunho'}\n\n${reportHeadings.done}\n${report.done||'Nenhuma conclusão registrada.'}\n\n${reportHeadings.next}\n${report.next||'Nenhuma tarefa planejada.'}\n\n${reportHeadings.comments}\n${report.comments||'Sem observações.'}`;
+  return `${report.title??defaultReportTitle(week,label)}\nCliente / projeto: ${label}\nPeríodo: ${reportPeriod(week)}\nStatus: ${report.status||'Rascunho'}\n\n${reportHeadings.done}\n${report.done||'Nenhuma conclusão registrada.'}\n\n${reportHeadings.next}\n${report.next||'Nenhuma tarefa planejada.'}\n\n${reportHeadings.comments}\n${report.comments||'Sem observações.'}`;
 }

@@ -6,7 +6,7 @@ export async function buildReportPdf(report:Report,week:string,label:string,metr
   const {jsPDF}=await import('jspdf');
   const doc=new jsPDF({unit:'mm',format:'a4',compress:true});
   const margin=22,width=166,bottom=274,accent=themeColors[clientTheme(label)];
-  const title=report.title||defaultReportTitle(week,label);
+  const title=report.title??defaultReportTitle(week,label);
   doc.setProperties({title,subject:'Relatório semanal',creator:'DCarvalho'});
   let y=29;
   function paintPage(first=false) {
@@ -61,7 +61,7 @@ export async function buildReportPdf(report:Report,week:string,label:string,metr
     const footer=doc.splitTextToSize(title,142) as string[];
     doc.text(footer[0]+(footer.length>1?'…':''),margin,287);doc.text(`${i} / ${pages}`,188,287,{align:'right'});
   }
-  const filename=`${title.replace(/[\\/:*?"<>|]/g,'-').replace(/\s+/g,' ').trim()||'Relatório semanal'}.pdf`;
+  const filename=`${title.replace(/[\\/:*?"<>|]/g,'-').trim()||'Relatório semanal'}.pdf`;
   return {filename,bytes:doc.output('arraybuffer')};
 }
 export async function downloadReportPdf(report:Report,week:string,label:string,metrics?:ReportMetrics) {

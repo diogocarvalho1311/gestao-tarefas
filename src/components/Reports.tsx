@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { CalendarDays, Check, CheckCircle2, Copy, Download, FileText, ListTodo, LoaderCircle, Plus, RefreshCw, Search } from 'lucide-react';
 import { groupLabel, hours, type Report, type State, type Task } from '../../shared/domain';
-import { composeReport, defaultReportTitle, formattedReport, reportCandidates, reportHeadings, reportMetrics, reportPeriod } from '../../shared/reports';
+import { composeReport, initialReportTitle, formattedReport, reportCandidates, reportHeadings, reportMetrics, reportPeriod } from '../../shared/reports';
 import { clientTheme, taskDot } from '../../shared/client-theme';
 import { downloadReportPdf } from '../lib/export-report';
 import { useConfirm } from './ConfirmProvider';
@@ -27,7 +27,7 @@ export default function Reports({state,week,selected,groups,busy,onSelect,onSave
   const {hosted,readOnly}=useRuntime();
   const key=`${week}|${selected}`,label=groups.find(([id])=>id===selected)?.[1]||'Todos os trabalhos';
   const candidates=reportCandidates(state,week,selected),saved=state.reports.find(r=>r.key===key);
-  const [draft,setDraft]=useState<Report>(()=>({key,title:defaultReportTitle(week,label),status:'Rascunho',done:'',next:'',comments:'',...saved,doneTaskIds:saved?.doneTaskIds??candidates.done.map(t=>t.id),nextTaskIds:saved?.nextTaskIds??candidates.next.map(t=>t.id),doneNotes:saved?.doneNotes??(saved?.doneTaskIds===undefined?saved?.done:'')??'',nextNotes:saved?.nextNotes??(saved?.nextTaskIds===undefined?saved?.next:'')??''}));
+  const [draft,setDraft]=useState<Report>(()=>({key,status:'Rascunho',done:'',next:'',comments:'',...saved,title:initialReportTitle(saved?.title,week,label),doneTaskIds:saved?.doneTaskIds??candidates.done.map(t=>t.id),nextTaskIds:saved?.nextTaskIds??candidates.next.map(t=>t.id),doneNotes:saved?.doneNotes??(saved?.doneTaskIds===undefined?saved?.done:'')??'',nextNotes:saved?.nextNotes??(saved?.nextTaskIds===undefined?saved?.next:'')??''}));
   const [dirty,setDirty]=useState(false),[exporting,setExporting]=useState(false);
   useEffect(()=>{onDirtyChange?.(dirty);return()=>onDirtyChange?.(false);},[dirty,onDirtyChange]);
   const composed=composeReport(draft,{...state,tasks:candidates.tasks}),metrics=reportMetrics(state,week,selected,draft),theme=selected.startsWith('client:')?clientTheme(label):'other';

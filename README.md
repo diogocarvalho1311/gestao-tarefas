@@ -108,6 +108,8 @@ Realizados: tarefas concluídas com data de conclusão na semana anterior à sel
 
 Cada seção possui um **Complemento livre** secundário. Ao copiar, salvar ou exportar, o app junta os nomes das tarefas e esse texto livre. Os rascunhos antigos são preservados como complementos livres. Marcar “Enviado” continua sendo apenas um registro manual.
 
+O título automático identifica a semana anterior à selecionada e usa pontos nas datas: ao selecionar 02–08/11, por exemplo, ele fica **26.10 - 01.11 - Lucri**. Títulos automáticos antigos são atualizados ao abrir o rascunho; títulos personalizados são preservados. O título do PDF e o nome do arquivo seguem o campo **Título do relatório**, incluindo edições ainda não salvas.
+
 O resumo mostra entregas selecionadas, horas realmente registradas na semana anterior, horas dessa mesma semana nas entregas selecionadas e blocos planejados para a semana selecionada. Não usa estimativas como horas realizadas.
 
 ## Exportação dos relatórios

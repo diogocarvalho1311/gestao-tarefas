@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { formattedReport, defaultReportTitle, composeReport, reportCandidates, reportMetrics } from '../shared/reports.js';
+import { formattedReport, defaultReportTitle, initialReportTitle, composeReport, reportCandidates, reportMetrics } from '../shared/reports.js';
 import { buildReportPdf } from '../src/lib/export-report.js';
 import { emptyState, exampleState } from '../server/store.js';
 import { addDays, groupKey } from '../shared/domain.js';
@@ -94,7 +94,34 @@ test('indicadores usam horas realizadas da semana anterior e blocos da semana se
   assert.deepEqual(reportMetrics(s,week,'client:Lucri',{...draft,doneTaskIds:[]}),{doneCount:0,workedHours:2.5,doneHours:0,nextHours:1.5});
 });
 test('PDF suporta relatórios longos e títulos que atravessam dois meses',async()=>{
-  assert.equal(defaultReportTitle('2026-10-26','CWB Kids'),'26/10 - 01/11 - CWB Kids');
+  assert.equal(defaultReportTitle('2026-11-02','CWB Kids'),'26.10 - 01.11 - CWB Kids');
   const pdf=await buildReportPdf({key:'long',done:'• Tarefa concluída\n'.repeat(180),next:'Próximas ações',comments:'Comentário final.'},'2026-10-19','Faculdade');
   assert.ok(pdf.bytes.byteLength>3000);
+});
+
+test('título automático usa a semana anterior e pontos nas datas, inclusive na virada do ano',()=>{
+  assert.equal(defaultReportTitle('2026-11-02','Lucri'),'26.10 - 01.11 - Lucri');
+  assert.equal(defaultReportTitle('2026-10-26','CWB Kids'),'19-25.10 - CWB Kids');
+  assert.equal(defaultReportTitle('2027-01-04','Lucri'),'28.12 - 03.01 - Lucri');
+});
+
+test('rascunhos com título automático antigo adotam o novo padrão e títulos personalizados são preservados',()=>{
+  const week='2026-11-02',title='26.10 - 01.11 - Lucri';
+  assert.equal(initialReportTitle(undefined,week,'Lucri'),title);
+  assert.equal(initialReportTitle('02-08/11 - Lucri',week,'Lucri'),title);
+  assert.equal(initialReportTitle('26/10 - 01/11 - Lucri',week,'Lucri'),title);
+  assert.equal(initialReportTitle(title,week,'Lucri'),title);
+  assert.equal(initialReportTitle('Resultados da campanha',week,'Lucri'),'Resultados da campanha');
+  assert.equal(initialReportTitle('',week,'Lucri'),'');
+});
+
+test('PDF e nome do arquivo usam o mesmo título atual do site, inclusive edições sem salvar',async()=>{
+  const week='2026-11-02',state=emptyState();
+  for(const title of [defaultReportTitle(week,'Lucri'),'Resultado revisado  - Lucri']) {
+    const draft={key:'title',title,done:'',next:'',comments:''};
+    const report=composeReport(draft,state),pdf=await buildReportPdf(report,week,'Lucri');
+    assert.equal(pdf.filename,`${title}.pdf`);
+    assert.ok(Buffer.from(pdf.bytes).toString('latin1').includes(`/Title (${title})`));
+    assert.ok(formattedReport(report,week,'Lucri').startsWith(`${title}\n`));
+  }
 });
