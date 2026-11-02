@@ -52,7 +52,7 @@ npm start
 4. Confira os excessos por dia e na semana. Um prazo não reserva horas sozinho; somente os blocos consomem capacidade. É possível planejar acima da capacidade com aviso explícito.
 5. Nos detalhes da tarefa, registre o tempo efetivamente trabalhado em minutos ou horas e a data. Conclua usando a caixa de seleção. Tempo restante = estimado − realizado, com mínimo de zero. A conclusão preserva blocos e registros.
 6. Use **Meus projetos** para trabalhos vinculados a uma iniciativa e **Minhas tarefas** para pendências pessoais avulsas. Ao editar uma tarefa pessoal importada, pode escolher entre esses dois tipos sem alterar o Notion. A visão geral sempre mostra o uso completo da sua semana, incluindo clientes, projetos pessoais e faculdade.
-7. Em **Relatórios**, selecione a semana e o cliente ou projeto. O texto usa a data de conclusão para entregas realizadas e blocos/prazos da semana seguinte para o próximo plano. Edite, salve o rascunho, copie ou exporte em PDF. Salve o rascunho antes de trocar de tela ou semana.
+7. Em **Relatórios**, selecione a semana e o cliente ou projeto. As entregas e horas realizadas vêm da semana anterior à selecionada; o planejamento usa blocos e prazos da própria semana selecionada. Por exemplo, em 02–08/11, o relatório reúne conclusões de 26/10–01/11 e o plano de 02–08/11. **Puxar tarefas automaticamente** recalcula a seleção usando as tarefas carregadas no aplicativo e preserva os complementos livres; para atualizar a fonte, use **Ler Notion**. Edite, salve o rascunho, copie ou exporte em PDF. Salve o rascunho antes de trocar de tela ou semana.
 8. No **Calendário da faculdade**, navegue pelos meses e veja somente os prazos e blocos de estudo das tarefas acadêmicas. Pesquise e filtre por status ou disciplina. O botão **+** de cada dia permite reservar estudo; tarefas sem prazo nem bloco aparecem abaixo do calendário.
 
 Exclusões e saídas com alterações não salvas usam pop-ups do próprio sistema. O status antigo Bloqueada passa a A fazer nos dados locais. A conexão com o Notion permanece somente leitura.
@@ -104,11 +104,11 @@ Os atalhos **Lucri** e **CWB Kids** no menu abrem as tarefas de cada cliente com
 
 As seções de realizados e próximo planejamento começam por listas de tarefas selecionadas automaticamente. É possível marcar/desmarcar, pesquisar e adicionar outras tarefas concluídas ou pendentes do cliente/projeto escolhido. O botão **Puxar tarefas automaticamente** atualiza as seleções sem apagar os complementos livres nem os comentários.
 
-Realizados: tarefas concluídas com data de conclusão no período. Para tarefas antigas importadas que não têm essa data, a Data do Notion é usada **somente como referência de seleção**, com aviso para revisão. Nenhuma data de conclusão é criada ou alterada. Próximo planejamento: tarefas pendentes com bloco ou prazo na semana seguinte.
+Realizados: tarefas concluídas com data de conclusão na semana anterior à selecionada, no horário de São Paulo. Para tarefas antigas importadas que não têm essa data, a Data do Notion é usada **somente como referência de seleção**, com aviso para revisão. Nenhuma data de conclusão é criada ou alterada. Planejamento desta semana: tarefas pendentes com bloco ou prazo na semana selecionada.
 
 Cada seção possui um **Complemento livre** secundário. Ao copiar, salvar ou exportar, o app junta os nomes das tarefas e esse texto livre. Os rascunhos antigos são preservados como complementos livres. Marcar “Enviado” continua sendo apenas um registro manual.
 
-O resumo mostra entregas selecionadas, horas realmente registradas na semana, horas registradas nas entregas selecionadas e blocos planejados para a próxima semana. Não usa horas de outras semanas nem estimativas como horas realizadas.
+O resumo mostra entregas selecionadas, horas realmente registradas na semana anterior, horas dessa mesma semana nas entregas selecionadas e blocos planejados para a semana selecionada. Não usa estimativas como horas realizadas.
 
 ## Exportação dos relatórios
 

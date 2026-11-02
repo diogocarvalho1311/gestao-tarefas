@@ -20,7 +20,7 @@ test('revisão atualiza várias tarefas e o total de ontem, preserva outros dias
   assert.ok(after.timeEntries.some(e=>e.id==='b-old'));assert.deepEqual(after.blocks,blocks);
   assert.equal(pendingReviewDate(after,current),null);assert.equal(pendingReviewDate(after,addDays(current,1)),current);
   const before=structuredClone(after);assert.throws(()=>applyDailyReview(after,{date,entries}),/já foi salva/);assert.deepEqual(after,before);
-  assert.equal(reportMetrics(after,weekStart(date),'',{key:'test',done:'',next:'',comments:'',doneTaskIds:[a.id]}).workedHours,after.timeEntries.filter(e=>e.date>=weekStart(date)&&e.date<=addDays(weekStart(date),6)).reduce((n,e)=>n+e.hours,0));
+  assert.equal(reportMetrics(after,addDays(weekStart(date),7),'',{key:'test',done:'',next:'',comments:'',doneTaskIds:[a.id]}).workedHours,after.timeEntries.filter(e=>e.date>=weekStart(date)&&e.date<=addDays(weekStart(date),6)).reduce((n,e)=>n+e.hours,0));
   store.db.close();
 });
 
@@ -39,7 +39,7 @@ test('revisão inválida não aplica mudanças parciais, nem reabre conclusões 
 
 test('datas da revisão seguem São Paulo e tarefas fora do planejamento também podem ser selecionadas',()=>{
   assert.equal(completionDay('2026-10-26T01:00:00Z'),'2026-10-25');
-  const s=exampleState(),date='2026-10-25';s.blocks=[{id:'planned',taskId:s.tasks[1].id,date,hours:2}];
+  const s=exampleState(),date='2026-10-25';s.dailyReviewStartDate=date;s.blocks=[{id:'planned',taskId:s.tasks[1].id,date,hours:2}];
   s.tasks[0].status='Concluída';s.tasks[0].completedAt='2026-10-26T01:00:00Z';
   const candidates=reviewTasks(s,date);assert.equal(candidates[0].id,s.tasks[1].id);assert.ok(candidates.some(t=>t.id===s.tasks[0].id));assert.ok(candidates.some(t=>t.id===s.tasks[2].id));
   const reviewDate=pendingReviewDate(s,'2026-10-26');assert.equal(reviewDate,date);

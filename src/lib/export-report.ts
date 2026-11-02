@@ -29,7 +29,7 @@ export async function buildReportPdf(report:Report,week:string,label:string,metr
   doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor('#b0b0b0');doc.text(report.status||'Rascunho',188,y,{align:'right'});y+=7;
   text(reportPeriod(week).replace(' → ',' a '),margin,width,9,5,false,'#a9a9a9');y+=8;
   if(metrics) {
-    const cards=[{label:'Entregas selecionadas',value:String(metrics.doneCount)},{label:'Tempo registrado',value:hours(metrics.workedHours)},{label:'Tempo nas entregas',value:hours(metrics.doneHours)},{label:'Próxima semana',value:hours(metrics.nextHours)}];
+    const cards=[{label:'Entregas selecionadas',value:String(metrics.doneCount)},{label:'Tempo registrado',value:hours(metrics.workedHours)},{label:'Tempo nas entregas',value:hours(metrics.doneHours)},{label:'Esta semana',value:hours(metrics.nextHours)}];
     ensure(34);const gap=3,cardWidth=(width-gap*3)/4;
     for(let i=0;i<cards.length;i++) {
       const x=margin+i*(cardWidth+gap);
@@ -37,7 +37,7 @@ export async function buildReportPdf(report:Report,week:string,label:string,metr
       doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor('#b2b2b2');doc.text(cards[i].label,x+3,y+7,{maxWidth:cardWidth-5});
       doc.setFont('helvetica','bold');doc.setFontSize(18);doc.setTextColor(accent);doc.text(cards[i].value,x+3,y+20);
     }
-    y+=34;text('Tempo registrado considera apenas os apontamentos desta semana.',margin,width,8,4.5,false,'#888888');y+=7;
+    y+=34;text('Tempo registrado considera apenas os apontamentos da semana passada.',margin,width,8,4.5,false,'#888888');y+=7;
   }
   const section=(number:string,heading:string,content:string,fallback:string)=>{
     ensure(29);doc.setFillColor(accent);doc.roundedRect(margin,y-4.5,9,7,1.8,1.8,'F');

@@ -19,6 +19,11 @@ export function addDays(date: string, n: number) { const d = new Date(`${date}T1
 export function weekStart(date = today()) { const day = new Date(`${date}T12:00:00Z`).getUTCDay(); return addDays(date, -(day === 0 ? 6 : day-1)); }
 export const weekDays = (week: string) => Array.from({length:7},(_,i)=>addDays(week,i));
 export const inWeek = (date: string | null, week: string) => !!date && date.slice(0,10)>=week && date.slice(0,10)<=addDays(week,6);
+export function completionDay(value:string|null) {
+  if(!value)return null;
+  const date=new Date(value);if(!Number.isFinite(date.getTime()))return null;
+  return new Intl.DateTimeFormat('en-CA',{timeZone:'America/Sao_Paulo',year:'numeric',month:'2-digit',day:'2-digit'}).format(date);
+}
 export const defaultCapacity = (date: string) => { const day=new Date(`${date}T12:00:00Z`).getUTCDay(); return day===0||day===6?0:6; };
 export const capacity = (state: State, date: string) => state.availability[date] ?? defaultCapacity(date);
 export const remaining = (task: Task) => Math.max(0, task.estimate-task.actual);
@@ -34,11 +39,18 @@ export const isPersonalProject=(task:Task)=>task.scope==='personal'&&(task.perso
 export const matchesScope=(task:Task,scope:string)=>scope==='all'||(scope==='projects'?isPersonalProject(task):scope==='personal'?task.scope==='personal'&&!isPersonalProject(task):task.scope===scope);
 export const groupLabel = (task: Task) => task.scope==='academic' ? task.project || 'Faculdade' : task.scope==='personal' ? isPersonalProject(task)?task.project || 'Meus projetos':'Minhas tarefas' : task.client || 'Sem cliente';
 export const groupKey = (task: Task) => task.scope==='client' ? `client:${task.client}` : `${task.scope}:${task.project}`;
+export function reportCandidates(state:State,week:string,group:string) {
+  const tasks=state.tasks.filter(t=>!group||groupKey(t)===group),previousWeek=addDays(week,-7);
+  return {
+    done:tasks.filter(t=>t.status==='Concluída'&&(inWeek(completionDay(t.completedAt),previousWeek)||(!t.completedAt&&inWeek(t.due,previousWeek)))),
+    next:tasks.filter(t=>t.status!=='Concluída'&&(allocated(state,t.id,week)>0||inWeek(t.due,week))),
+    tasks
+  };
+}
 export function reportText(state: State, week: string, group: string) {
-  const tasks=state.tasks.filter(t=>!group||groupKey(t)===group);
-  const done=tasks.filter(t=>inWeek(t.completedAt,week)).map(t=>`• ${t.title}`).join('\n');
-  const nextWeek=addDays(week,7);
-  const next=tasks.filter(t=>t.status!=='Concluída'&&(allocated(state,t.id,nextWeek)>0||inWeek(t.due,nextWeek))).map(t=>`• ${t.title}`).join('\n');
+  const candidates=reportCandidates(state,week,group);
+  const done=candidates.done.map(t=>`• ${t.title}`).join('\n');
+  const next=candidates.next.map(t=>`• ${t.title}`).join('\n');
   return { done, next, comments:'' };
 }
 export const hours = (n:number) => {

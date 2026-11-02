@@ -1,12 +1,8 @@
-import { addDays, today, type DailyReviewEntry, type State, type Task } from './domain.js';
+import { addDays, completionDay, today, type DailyReviewEntry, type State, type Task } from './domain.js';
+export { completionDay } from './domain.js';
 
 export class DailyReviewError extends Error { constructor(public status:400|404|409,message:string){super(message);} }
 export const taskHoursOn=(state:State,taskId:string,date:string)=>state.timeEntries.filter(e=>e.taskId===taskId&&e.date===date).reduce((sum,e)=>sum+e.hours,0);
-export function completionDay(value:string|null) {
-  if(!value)return null;
-  const date=new Date(value);if(!Number.isFinite(date.getTime()))return null;
-  return new Intl.DateTimeFormat('en-CA',{timeZone:'America/Sao_Paulo',year:'numeric',month:'2-digit',day:'2-digit'}).format(date);
-}
 export function reviewTasks(state:State,date:string) {
   const scheduled=new Set(state.blocks.filter(b=>b.date===date).map(b=>b.taskId)),worked=new Set(state.timeEntries.filter(e=>e.date===date).map(e=>e.taskId));
   return state.tasks.filter(t=>t.status!=='Concluída'||(completionDay(t.completedAt)||'')>=date||scheduled.has(t.id)||worked.has(t.id))

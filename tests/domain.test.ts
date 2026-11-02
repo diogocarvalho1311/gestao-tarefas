@@ -20,13 +20,13 @@ test('tempo restante não fica negativo e concluir preserva blocos históricos',
   const s=exampleState(),t=s.tasks[0],before=JSON.stringify(s.blocks);t.actual=100;t.status='Concluída';
   assert.equal(remaining(t),0);assert.equal(JSON.stringify(s.blocks),before);
 });
-test('relatórios usam conclusão, blocos da próxima semana e prazo sem misturar clientes e projetos',()=>{
+test('relatórios usam conclusão da semana passada, blocos e prazo desta semana sem misturar clientes e projetos',()=>{
   const s=exampleState(),w=weekStart(),a=s.tasks[0],b=s.tasks[1],p=s.tasks[3];
-  a.completedAt=`${w}T12:00:00Z`;a.status='Concluída';a.due=addDays(w,30);
-  b.due=addDays(w,8);p.completedAt=`${w}T12:00:00Z`;p.status='Concluída';
+  a.completedAt=`${addDays(w,-7)}T12:00:00Z`;a.status='Concluída';a.due=addDays(w,30);
+  b.due=addDays(w,1);p.completedAt=`${addDays(w,-7)}T12:00:00Z`;p.status='Concluída';
   assert.match(reportText(s,w,groupKey(a)).done,new RegExp(a.title));assert.ok(!reportText(s,w,groupKey(a)).done.includes(p.title));assert.ok(reportText(s,w,groupKey(p)).done.includes(p.title));
   assert.ok(reportText(s,w,groupKey(b)).next.includes(b.title));
-  b.due=null;s.blocks.push({id:'next',taskId:b.id,date:addDays(w,7),hours:1});assert.ok(reportText(s,w,groupKey(b)).next.includes(b.title));
+  b.due=null;s.blocks.push({id:'next',taskId:b.id,date:w,hours:1});assert.ok(reportText(s,w,groupKey(b)).next.includes(b.title));
 });
 test('validação rejeita horas negativas, infinitas e datas impossíveis',()=>{
   assert.equal(dateSchema.safeParse('2026-02-30').success,false);assert.equal(dateSchema.safeParse('2028-02-29').success,true);

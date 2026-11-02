@@ -40,7 +40,7 @@ Os PDFs fornecidos pelo usuário usam título com período e cliente, uma tabela
 2. O que está planejado de mais relevante para realizar essa semana?
 3. Comentários.
 
-A tela e o PDF local seguem esse formato. O PDF é baixado diretamente no navegador e respeita os textos editados. Não há publicação ou escrita na base de relatórios.
+A tela e o PDF local seguem esse formato. A semana selecionada identifica o planejamento: as conclusões e horas realizadas são buscadas na semana anterior, e os blocos/prazos planejados na própria semana selecionada. Datas de conclusão seguem o horário de São Paulo. O PDF é baixado diretamente no navegador e respeita os textos editados. Não há publicação ou escrita na base de relatórios.
 
 ## Garantias da leitura
 
