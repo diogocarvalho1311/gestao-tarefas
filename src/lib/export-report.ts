@@ -1,8 +1,9 @@
-import { hours, type Report } from '../../shared/domain';
+import { type Report } from '../../shared/domain';
 import { clientTheme, themeColors } from '../../shared/client-theme';
-import { defaultReportTitle, reportHeadings, reportPeriod, type ReportMetrics } from '../../shared/reports';
+import { defaultReportTitle, reportHeadings, reportPeriod } from '../../shared/reports';
 
-export async function buildReportPdf(report:Report,week:string,label:string,metrics?:ReportMetrics) {
+/** Gera o PDF do relatório com cabeçalho e seções, sem os cards de métricas da tela. */
+export async function buildReportPdf(report:Report,week:string,label:string) {
   const {jsPDF}=await import('jspdf');
   const doc=new jsPDF({unit:'mm',format:'a4',compress:true});
   const margin=22,width=166,bottom=274,accent=themeColors[clientTheme(label)];
@@ -28,17 +29,6 @@ export async function buildReportPdf(report:Report,week:string,label:string,metr
   doc.setFont('helvetica','bold');doc.setFontSize(10.5);doc.setTextColor(accent);doc.text(label,margin,y);
   doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor('#b0b0b0');doc.text(report.status||'Rascunho',188,y,{align:'right'});y+=7;
   text(reportPeriod(week).replace(' → ',' a '),margin,width,9,5,false,'#a9a9a9');y+=8;
-  if(metrics) {
-    const cards=[{label:'Entregas selecionadas',value:String(metrics.doneCount)},{label:'Tempo registrado',value:hours(metrics.workedHours)},{label:'Tempo nas entregas',value:hours(metrics.doneHours)},{label:'Esta semana',value:hours(metrics.nextHours)}];
-    ensure(34);const gap=3,cardWidth=(width-gap*3)/4;
-    for(let i=0;i<cards.length;i++) {
-      const x=margin+i*(cardWidth+gap);
-      doc.setFillColor('#1c1c1c');doc.setDrawColor('#383838');doc.roundedRect(x,y,cardWidth,27,3,3,'FD');
-      doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor('#b2b2b2');doc.text(cards[i].label,x+3,y+7,{maxWidth:cardWidth-5});
-      doc.setFont('helvetica','bold');doc.setFontSize(18);doc.setTextColor(accent);doc.text(cards[i].value,x+3,y+20);
-    }
-    y+=34;text('Tempo registrado considera apenas os apontamentos da semana passada.',margin,width,8,4.5,false,'#888888');y+=7;
-  }
   const section=(number:string,heading:string,content:string,fallback:string)=>{
     ensure(29);doc.setFillColor(accent);doc.roundedRect(margin,y-4.5,9,7,1.8,1.8,'F');
     doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor('#101010');doc.text(number,margin+4.5,y,{align:'center'});
@@ -64,8 +54,9 @@ export async function buildReportPdf(report:Report,week:string,label:string,metr
   const filename=`${title.replace(/[\\/:*?"<>|]/g,'-').trim()||'Relatório semanal'}.pdf`;
   return {filename,bytes:doc.output('arraybuffer')};
 }
-export async function downloadReportPdf(report:Report,week:string,label:string,metrics?:ReportMetrics) {
-  const {filename,bytes}=await buildReportPdf(report,week,label,metrics);
+/** Baixa o relatório em PDF, sem incluir os cards de métricas da tela. */
+export async function downloadReportPdf(report:Report,week:string,label:string) {
+  const {filename,bytes}=await buildReportPdf(report,week,label);
   const url=URL.createObjectURL(new Blob([bytes],{type:'application/pdf'}));
   const anchor=document.createElement('a');anchor.href=url;anchor.download=filename;anchor.click();
   setTimeout(()=>URL.revokeObjectURL(url),1500);

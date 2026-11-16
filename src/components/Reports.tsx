@@ -34,7 +34,7 @@ export default function Reports({state,week,selected,groups,busy,onSelect,onSave
   function change<K extends keyof Report>(field:K,value:Report[K]){if(readOnly)return;setDraft(d=>({...d,[field]:value}));setDirty(true);}
   function refresh(){setDraft(d=>({...d,doneTaskIds:candidates.done.map(t=>t.id),nextTaskIds:candidates.next.map(t=>t.id)}));setDirty(true);}
   async function copy(){try{await navigator.clipboard.writeText(`${formattedReport(composed,week,label)}\n\nTempo registrado na semana passada: ${hours(metrics.workedHours)}\nTempo nas entregas selecionadas: ${hours(metrics.doneHours)}`);onCopy();}catch{onError('O navegador não permitiu copiar. Tente novamente.');}}
-  async function exportPdf(){setExporting(true);try{await downloadReportPdf(composed,week,label,metrics);}catch{onError('Não foi possível gerar o PDF. Tente novamente.');}finally{setExporting(false);}}
+  async function exportPdf(){setExporting(true);try{await downloadReportPdf(composed,week,label);}catch{onError('Não foi possível gerar o PDF. Tente novamente.');}finally{setExporting(false);}}
   const referenceDates=candidates.done.some(t=>!t.completedAt&&!!t.due);
   return <div className={`reports-layout report-theme-${theme}`}><section className="panel report-panel">
     <div className="panel-heading"><div><h2>Seu relatório semanal</h2><p>Comece pelas tarefas. Complete com o contexto que importa.</p></div><span className="read-only">{readOnly?'Somente leitura':hosted?'Salvo na nuvem':'Salvo só aqui'}</span></div>
