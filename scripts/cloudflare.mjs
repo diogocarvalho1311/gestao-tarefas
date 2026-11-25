@@ -5,24 +5,23 @@ import { readFileSync,writeFileSync,mkdirSync,existsSync } from 'node:fs';
 import { join,resolve } from 'node:path';
 import { randomBytes,createHash,pbkdf2Sync } from 'node:crypto';
 import { spawn } from 'node:child_process';
+import { cloudflareCredentials } from './cloudflare-auth.mjs';
 const source=process.env.DCARVALHO_SOURCE_DIR||process.cwd(),privateDir=join(source,'.cloudflare');
-const config=JSON.parse(readFileSync('wrangler.jsonc','utf8')),account=process.env.CLOUDFLARE_ACCOUNT_ID||JSON.parse(readFileSync('cloudflare/account.json','utf8')).account_id,database=config.d1_databases[0].database_id;
+// The checked-in account wins over inherited shell variables from other projects.
+const config=JSON.parse(readFileSync('wrangler.jsonc','utf8')),account=JSON.parse(readFileSync('cloudflare/account.json','utf8')).account_id,database=config.d1_databases[0].database_id;
 const privateState=join(privateDir,'deployment.json');mkdirSync(privateDir,{recursive:true});
 const sha=value=>createHash('sha256').update(value).digest('hex');
-function token() {
-  if(process.env.CLOUDFLARE_API_TOKEN)return process.env.CLOUDFLARE_API_TOKEN;
-  const file=join(process.env.APPDATA||join(process.env.USERPROFILE,'AppData','Roaming'),'xdg.config','.wrangler','config','default.toml');
-  const contents=readFileSync(file,'utf8'),match=contents.match(/^oauth_token\s*=\s*"([^"]+)"/m);
-  if(!match)throw Error('Conecte a conta com npx wrangler login.');return match[1];
-}
+const credentials=await cloudflareCredentials();
+/** Call the configured account with the verified cf profile; never log credentials. */
 export async function cloudflareApi(path,body,method=body?'POST':'GET') {
-  const r=await fetch(`https://api.cloudflare.com/client/v4/accounts/${account}${path}`,{method,headers:{Authorization:`Bearer ${token()}`,'Content-Type':'application/json'},...(body?{body:JSON.stringify(body)}:{})});
+  const r=await fetch(`https://api.cloudflare.com/client/v4/accounts/${account}${path}`,{method,headers:{Authorization:`Bearer ${credentials.CLOUDFLARE_API_TOKEN}`,'Content-Type':'application/json'},...(body?{body:JSON.stringify(body)}:{})});
   const result=await r.json();if(!r.ok||!result.success)throw Error(`Cloudflare: ${r.status} ${result.errors?.map(e=>e.message).join('; ')||'Falha na solicitação'}`);return result.result;
 }
 async function query(sql,params=[]) {return (await cloudflareApi(`/d1/database/${database}/query`,{sql,params}))[0];}
+/** Upload backend secrets using the same verified profile as database maintenance. */
 async function wranglerSecrets(values) {
   await new Promise((done,reject)=>{
-    const child=spawn(process.execPath,[resolve('node_modules/wrangler/bin/wrangler.js'),'pages','secret','bulk','--project-name',config.name],{stdio:['pipe','inherit','inherit']});
+    const child=spawn(process.execPath,[resolve('node_modules/wrangler/bin/wrangler.js'),'pages','secret','bulk','--project-name',config.name],{stdio:['pipe','inherit','inherit'],env:{...process.env,...credentials}});
     child.stdin.end(JSON.stringify(values));child.on('error',reject);child.on('exit',code=>code===0?done():reject(Error('Não foi possível configurar os segredos.')));
   });
 }

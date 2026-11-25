@@ -1,13 +1,17 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "dcarvalho-tarefas",
+  "name": "dcarvalho-tarefas-pessoal",
   "pages_build_output_dir": "./dist",
   "compatibility_date": "2026-10-01",
-  "compatibility_flags": ["nodejs_compat"],
-  "d1_databases": [{
-    "binding": "DB",
-    "database_name": "dcarvalho-gestao",
-    "database_id": "96bb3f3a-be99-4273-b5ed-7de9e34d0562",
-    "migrations_dir": "cloudflare/migrations"
-  }]
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "dcarvalho-gestao-pessoal",
+      "database_id": "b9c4522f-4b53-4967-ab2d-44c1706c21f1",
+      "migrations_dir": "cloudflare/migrations"
+    }
+  ]
 }

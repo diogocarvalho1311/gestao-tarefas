@@ -4,7 +4,7 @@ Um planejador pessoal de tarefas de trabalho, orientado pelo tempo disponível. 
 
 ## Demonstração
 
-**[Abrir demonstração — somente leitura](https://dcarvalho-tarefas.pages.dev/visualizacao)**
+**[Abrir demonstração — somente leitura](https://dcarvalho-tarefas-pessoal.pages.dev/visualizacao)**
 
 - Usuário: **visitante**
 - Senha: **`DCarvalho-Visita2026!`**
@@ -13,7 +13,7 @@ Explore tarefas, clientes, projetos pessoais, faculdade, calendários e relatór
 
 ## Acesso online
 
-**https://dcarvalho-tarefas.pages.dev**
+**https://dcarvalho-tarefas-pessoal.pages.dev**
 
 A versão online funciona com o computador desligado. O primeiro acesso usa um link privado de ativação para criar a senha; a senha nunca é incluída no código. Depois, basta abrir o endereço e entrar. O acesso pessoal é separado do visitante, sem cadastro público. Use **Sair da conta** ao terminar em um dispositivo compartilhado.
 
@@ -33,7 +33,7 @@ npm run dev
 
 No primeiro uso, o comando instala as dependências automaticamente. Abra **http://localhost:3000**. Frontend e backend iniciam juntos; não é necessário executar dois servidores. Para encerrar, pressione `Ctrl+C` no terminal.
 
-O projeto está em um drive sincronizado. Para evitar erros de instalação e problemas de bloqueio do SQLite, o inicializador mantém as dependências e os dados no disco local do Windows, dentro de `%LOCALAPPDATA%\Compasso`. O código continua na pasta original. Não é necessário rodar `npm install` nessa pasta. Cada cópia do projeto usa uma pasta identificada pelo caminho absoluto; renomear ou mover o projeto gera um novo espaço local. Para manter os dados ao mover, use o mesmo `DATABASE_PATH` absoluto no `.env`.
+O projeto está em um drive sincronizado. Para evitar erros de instalação e problemas de bloqueio do SQLite, o inicializador mantém as dependências e os dados no disco local, dentro de `%LOCALAPPDATA%\Compasso` no Windows ou `~/.local/share/Compasso` no macOS. O código continua na pasta original. Não é necessário rodar `npm install` nessa pasta. Cada cópia do projeto usa uma pasta identificada pelo caminho absoluto; renomear ou mover o projeto gera um novo espaço local. Para manter os dados ao mover, use o mesmo `DATABASE_PATH` absoluto no `.env`.
 
 O inicializador copia o código para a pasta local ao executar cada comando. Ao editar os arquivos originais durante o desenvolvimento, reinicie `npm run dev` para atualizar a cópia em execução.
 

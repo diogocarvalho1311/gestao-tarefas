@@ -26,7 +26,7 @@ async function run(bin,args,extra={}) {
 }
 try {
   if(!existsSync(marker)||readFileSync(marker,'utf8')!==fingerprint) {
-    console.log('Preparando dependências na pasta local do Windows…');
+    console.log('Preparando dependências na pasta local do computador…');
     const npmCli=process.env.npm_execpath;
     if(!npmCli) throw new Error('Execute pelo npm: npm run dev');
     await run(process.execPath,[npmCli,'install','--no-audit','--no-fund','--cache',join(root,'npm-cache')]);
@@ -45,15 +45,18 @@ try {
     await build();
   } else if(mode.startsWith('cloudflare-')) {
     const action=mode.slice('cloudflare-'.length),wrangler=join(runtime,'node_modules','wrangler','bin','wrangler.js');
+    // Remote operations verify the personal cf profile; local development needs no login.
+    const credentials=['deploy','migrate'].includes(action)?await (await import(join(runtime,'scripts/cloudflare-auth.mjs'))).cloudflareCredentials():{};
+    const cloudConfig=JSON.parse(readFileSync(join(runtime,'wrangler.jsonc'),'utf8'));
     if(action==='dev'||action==='deploy') {
       await build();
       await run(process.execPath,['scripts/build-pages.mjs']);
       if(action==='dev') {
         const vars=join(source,'.dev.vars');if(existsSync(vars))cpSync(vars,join(runtime,'.dev.vars'));
         await run(process.execPath,[wrangler,'pages','dev','dist','--port','3199']);
-      } else await run(process.execPath,[wrangler,'pages','deploy','dist','--project-name','dcarvalho-tarefas','--branch','main','--commit-dirty=true']);
-    } else if(action==='migrate') await run(process.execPath,[wrangler,'d1','migrations','apply','dcarvalho-gestao','--remote']);
-    else await run(process.execPath,['scripts/cloudflare.mjs',action]);
+      } else await run(process.execPath,[wrangler,'pages','deploy','dist','--project-name',cloudConfig.name,'--branch','main','--commit-dirty=true'],credentials);
+    } else if(action==='migrate') await run(process.execPath,[wrangler,'d1','migrations','apply',cloudConfig.d1_databases[0].database_name,'--remote'],credentials);
+    else await run(process.execPath,['scripts/cloudflare.mjs',action],credentials);
   } else if(mode==='test') {
     await run(process.execPath,[tsx,'--test',...readdirSync(join(runtime,'tests')).filter(f=>f.endsWith('.test.ts')).map(f=>`tests/${f}`)]);
   } else if(mode==='smoke') {

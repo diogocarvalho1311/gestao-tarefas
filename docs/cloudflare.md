@@ -4,7 +4,7 @@ O frontend React é servido pelo Cloudflare Pages. `cloudflare/worker.ts` é com
 
 ## Acesso e dados
 
-- URL: https://dcarvalho-tarefas.pages.dev
+- URL: https://dcarvalho-tarefas-pessoal.pages.dev
 - O acesso aos dados requer sessão válida. A criação de senha exige um token aleatório de primeiro acesso; não há cadastro público.
 - O token é enviado no fragmento do link, removido da barra de endereço pelo aplicativo e validado contra um hash armazenado como segredo do Pages. O link vale por três dias e deixa de funcionar após a criação da senha.
 - Senhas usam PBKDF2 SHA-256 com salt individual e 100.000 iterações. Sessões aleatórias são armazenadas apenas como hash no banco, expiram em 14 dias para o proprietário ou um dia para visitantes e usam cookie `HttpOnly`, `Secure` e `SameSite=Strict`.
@@ -15,7 +15,7 @@ O frontend React é servido pelo Cloudflare Pages. `cloudflare/worker.ts` é com
 
 ## Atualizar a versão online
 
-Requer Node.js 22.19 ou superior e uma conta autenticada no Wrangler com acesso ao Pages e D1. O inicializador mantém dependências e ambiente de execução fora do drive sincronizado.
+Requer Node.js 22.19 ou superior e o perfil `pessoal` do CLI cf autenticado como `carvalhodiogo746@gmail.com`, com acesso ao Pages e D1. O inicializador mantém dependências e ambiente de execução fora do drive sincronizado.
 
 ```powershell
 npm test
@@ -25,13 +25,27 @@ npm run cloudflare:deploy
 
 Os comandos devem rodar em sequência, pois compartilham a cópia de execução local. O deploy compila TypeScript/frontend e gera o módulo de Pages Functions antes de publicar. Não executa importação nem substitui dados existentes. O GitHub contém o código, sem deploy automático a cada push.
 
-O endereço anterior em Workers redireciona para Pages. A configuração desse redirecionamento fica em `cloudflare/redirect.wrangler.jsonc`. A mudança usa o mesmo banco e preserva os dados e a senha; é necessário entrar novamente no novo domínio.
+A hospedagem atual usa a conta pessoal. O projeto Pages é `dcarvalho-tarefas-pessoal` e o banco é `dcarvalho-gestao-pessoal`. A migração preservou o planejamento e a senha; entre novamente no novo domínio. O redirecionamento opcional em `cloudflare/redirect.wrangler.jsonc` também está configurado para a conta pessoal; não é executado pelo deploy principal.
 
 Para checar contagens e o estado da ativação sem exibir registros:
 
 ```powershell
 npm run cloudflare:status
 ```
+
+## Perfil de administração
+
+`cloudflare/account.json` contém `account_id`, `profile` e `email` esperados.
+Os comandos remotos npm verificam essa identidade com
+`cf auth whoami --profile pessoal`. O cf renova sua própria sessão; o adaptador fornece
+somente a credencial atual ao processo Wrangler e às chamadas de manutenção.
+Não grava tokens no projeto nem altera o perfil Lucri.
+
+O adaptador usa o caminho do arquivo JSON informado por `whoami`. Se o
+formato de armazenamento mudar ou passar a usar chaveiro criptografado,
+ele interrompe a operação com uma mensagem, sem alterar os logins.
+Não execute `wrangler login` como rotina. O navegador só precisa estar na
+conta correta ao autorizar um login novo, após uma falha real de autenticação.
 
 ## Primeira migração e segredos
 

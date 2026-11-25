@@ -5,6 +5,25 @@
 > Autoria: síntese do Codex baseada nos arquivos e no histórico Git disponíveis nesta instalação.
 > Este arquivo preserva contexto técnico e operacional; **não substitui o backup dos dados nem das credenciais**.
 
+## Atualização de hospedagem — 25/11/2026
+
+O aplicativo foi migrado para a conta pessoal, perfil `pessoal`, de
+`carvalhodiogo746@gmail.com`. O novo endereço é
+<https://dcarvalho-tarefas-pessoal.pages.dev>. A senha foi preservada.
+O Pages antigo da Lucri redireciona para esse endereço. A cópia antiga
+no D1 da Lucri foi preservada para exclusão manual após a migração.
+
+Os sete vínculos de pasta solicitados estão nas preferências globais;
+este projeto e seu runtime local usam somente o perfil pessoal.
+Os scripts npm verificam a identidade pelo CLI cf e fornecem a credencial
+atual ao Wrangler apenas no processo. Não é necessário outro login no
+Wrangler. Veja [docs/cloudflare.md](docs/cloudflare.md) e [AGENTS.md](AGENTS.md).
+
+As informações de Windows e do levantamento abaixo são históricas.
+Os dados online foram conferidos por hash e leitura autenticada no site
+novo: 210 tarefas, 26 blocos e 9 relatórios, revisão 343. Os 34 testes,
+a compilação e o fluxo HTTP local passaram.
+
 ## 1. Leia primeiro
 
 O **DCarvalho** é um planejador pessoal de tarefas orientado pelo tempo disponível. Reúne trabalho para clientes, projetos pessoais, tarefas avulsas e faculdade numa capacidade semanal única. O nome interno do pacote e das pastas de execução ainda é **Compasso**; não são dois aplicativos distintos.
@@ -34,10 +53,10 @@ Para usar o sistema no novo PC, o acesso online pode continuar pelo mesmo endere
 | Nome do pacote | `compasso`, versão `1.0.0`, privado, ESM |
 | Ambiente encontrado | Windows / PowerShell; Node `v22.19.0`; npm `11.6.0` |
 | Requisito documentado | Node.js 22.19 ou superior e npm |
-| Aplicativo online documentado | `https://dcarvalho-tarefas.pages.dev` |
-| Demonstração documentada | `https://dcarvalho-tarefas.pages.dev/visualizacao` |
+| Aplicativo online documentado | `https://dcarvalho-tarefas-pessoal.pages.dev` |
+| Demonstração documentada | `https://dcarvalho-tarefas-pessoal.pages.dev/visualizacao` |
 
-Não foi encontrado `AGENTS.md` dentro deste projeto no levantamento. As regras do repositório vizinho `produtos-lucri` são próprias daquele repositório; a presença de Lucri como cliente aqui não torna os dois projetos um só.
+No levantamento inicial não foi encontrado `AGENTS.md`; o arquivo agora define a conta pessoal para este projeto. As regras do repositório vizinho `produtos-lucri` são próprias daquele repositório; a presença de Lucri como cliente aqui não torna os dois projetos um só.
 
 Este levantamento não consultou contas remotas, registros pessoais do banco nem conversas antigas. Disponibilidade online, contagens atuais na nuvem, permissões e validade de credenciais não foram verificadas. Os números de importação nas seções seguintes são registros históricos dos documentos do projeto.
 
@@ -343,10 +362,10 @@ As escritas usam JSON e geralmente incluem `revision`; autenticação e leitura 
 
 Configuração existente em `wrangler.jsonc`:
 
-- Projeto Pages: `dcarvalho-tarefas`; build em `./dist`.
-- D1: `dcarvalho-gestao`; binding `DB`; database ID `96bb3f3a-be99-4273-b5ed-7de9e34d0562`.
+- Projeto Pages: `dcarvalho-tarefas-pessoal`; build em `./dist`.
+- D1: `dcarvalho-gestao-pessoal`; binding `DB`; database ID `b9c4522f-4b53-4967-ab2d-44c1706c21f1`.
 - Compatibilidade: `2026-10-01`, flag `nodejs_compat`.
-- Conta administrativa identificada em `cloudflare/account.json`; não é um token. `CLOUDFLARE_ACCOUNT_ID` pode sobrescrever a conta nos scripts administrativos.
+- `cloudflare/account.json` fixa conta, perfil e e-mail esperados. Os scripts verificam essa identidade antes de usar recursos remotos e ignoram a conta herdada do shell.
 - O Worker antigo `dcarvalho-gestao` é redirecionador 308 para Pages. Arquivos: `cloudflare/redirect.ts` e `cloudflare/redirect.wrangler.jsonc`.
 
 `scripts/build-pages.mjs` usa esbuild para gerar `dist/_worker.js`. `public/_routes.json` encaminha `/api/*` para Functions; `public/_headers` e o worker configuram cabeçalhos de segurança. GitHub não tem deploy automático documentado a cada push.
@@ -366,7 +385,12 @@ Configuração existente em `wrangler.jsonc`:
 
 Esses comandos são referência de manutenção, **não etapas obrigatórias da troca de PC**. Não executar migração remota, importação, troca de senha ou deploy apenas para restaurar contexto.
 
-No novo PC, autenticar o Wrangler na conta existente para administrar. O script aceita `CLOUDFLARE_API_TOKEN` ou lê o OAuth do Wrangler no caminho Windows `%APPDATA%\xdg.config\.wrangler\config\default.toml`. O código sugere `npx wrangler login` quando não há sessão. Essa autenticação não é a senha pessoal do app e não vem pelo Git; se o login for gravado em outro caminho por uma versão diferente do Wrangler, revisar `scripts/cloudflare.mjs` antes de supor que o token é inválido.
+No novo PC, configure uma vez o perfil `pessoal` do CLI cf na conta pessoal.
+Nesta instalação, reutilize o perfil salvo. Os scripts verificam e renovam a
+sessão com `cf auth whoami --profile pessoal`, lendo a credencial atual no
+arquivo JSON informado pelo próprio CLI. A credencial é passada somente ao
+processo Wrangler ou às chamadas de manutenção; não é versionada nem copiada
+para outra sessão. Esse acesso administrativo é separado da senha do app.
 
 Quando houver uma atualização autorizada para publicar, a sequência documentada é `npm test` → `npm run cloudflare:migrate` → `npm run cloudflare:deploy`, sempre sequencial. Deploy não importa nem substitui o workspace existente.
 
